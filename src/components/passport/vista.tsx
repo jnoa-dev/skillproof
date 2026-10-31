@@ -61,6 +61,6 @@ export default function VistaPasaporte({ slug }: { slug: string }) {
           <section className={tarjeta}><h2 className="font-semibold">Compartir</h2><p className="my-3 text-sm text-slate-500">Comparte este pasaporte con quien necesites.</p><CopiarEnlace/></section>
         </aside></div>
       </>}
-    </main><footer className="border-t border-slate-200 bg-white px-6 py-4 text-xs text-slate-500"><div className="mx-auto flex max-w-[1200px] justify-between gap-3"><span>© {new Date().getFullYear()} SKILLPROOF</span><div className="flex gap-2"><button type="button" disabled title="Términos aún no está disponible">Términos</button><span>·</span><button type="button" disabled title="Soporte aún no está disponible">Soporte</button></div></div></footer>
+    </main><footer className="border-t border-slate-200 bg-white px-6 py-4 text-xs text-slate-500"><div className="mx-auto flex max-w-[1200px] justify-between gap-3"><span>© {2026} SKILLPROOF</span><div className="flex gap-2"><button type="button" disabled title="Términos aún no está disponible">Términos</button><span>·</span><button type="button" disabled title="Soporte aún no está disponible">Soporte</button></div></div></footer>
   </div>;
 }
