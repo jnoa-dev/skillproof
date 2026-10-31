@@ -30,7 +30,7 @@ function DesafioCargando() {
           <div className="mt-6 grid items-start gap-6 lg:grid-cols-12"><div className="space-y-6 lg:col-span-8">{[2, 3, 4, 3, 6].map((filas, indice) => <div key={indice} className="rounded-xl border border-slate-200 bg-white p-6"><div className="mb-4 h-5 w-40 max-w-full rounded bg-slate-300"/>{Array.from({length: filas}, (_, fila) => <div key={fila} className={`mt-3 h-3 rounded bg-slate-200 ${fila === filas - 1 ? "w-3/4" : "w-full"}`}/>)}</div>)}</div><div className="space-y-6 lg:col-span-4">{[0, 1].map(indice => <div key={indice} className="rounded-xl border border-slate-200 bg-white p-6"><div className="h-5 w-28 rounded bg-slate-300"/><div className="mt-4 h-3 w-3/4 rounded bg-slate-200"/><div className="mt-3 h-3 w-full rounded bg-slate-200"/><div className="mt-4 h-12 w-full rounded bg-slate-300"/></div>)}</div></div>
         </div>
       </main>
-      <footer className="border-t border-slate-200 bg-white px-6 py-4 text-xs text-slate-600"><div className="mx-auto max-w-[1200px]">© {new Date().getFullYear()} SKILLPROOF</div></footer>
+      <footer className="border-t border-slate-200 bg-white px-6 py-4 text-xs text-slate-600"><div className="mx-auto max-w-[1200px]">© SKILLPROOF</div></footer>
     </div>
   );
 }
