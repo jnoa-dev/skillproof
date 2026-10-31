@@ -46,7 +46,7 @@ function FormularioAcceso() {
   const supabase = createClient();
 
   const [mode, setMode] = useState<"login" | "signup" | "recuperar" | "restablecer">(
-    parametros.get("estado") === "restablecer" ? "restablecer" : "login"
+    parametros.get("estado") === "restablecer" ? "restablecer" : parametros.get("mode") === "register" ? "signup" : "login"
   );
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
