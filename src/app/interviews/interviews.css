@@ -1,0 +1,18 @@
+.interviews {
+  color-scheme: light;
+  font-feature-settings: "tnum";
+}
+.interviews :is(button, a, input, textarea):focus-visible {
+  outline: 2px solid #165dcc;
+  outline-offset: 3px;
+}
+.interviews :is(input, textarea) { accent-color: #165dcc; }
+.interviews button:not(:disabled), .interviews label:has(input) { cursor: pointer; }
+.interviews button:disabled { cursor: not-allowed; }
+.interviews textarea { resize: vertical; }
+@media (prefers-reduced-motion: reduce) {
+  .interviews *, .interviews *::before, .interviews *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
