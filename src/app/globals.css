@@ -25,6 +25,79 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+.landing :is(section[id], div[id]) {
+  scroll-margin-top: 6rem;
+}
+
+.landing :is(a, button, summary):focus-visible {
+  outline: 2px solid #165dcc;
+  outline-offset: 4px;
+}
+
+.landing summary::-webkit-details-marker {
+  display: none;
+}
+
+/* El contorno rodea la tarjeta completa y no queda recortado por overflow-hidden. */
+.landing [data-landing-state="primera-pregunta"]:has(summary:focus-visible),
+.landing[data-landing-preview="hover"] [data-landing-state="primera-pregunta"] {
+  outline: 2px solid #087f8c;
+  outline-offset: 2px;
+}
+
+.landing [data-landing-state="primera-pregunta"] summary:focus-visible {
+  outline: none;
+}
+
+.landing[data-landing-preview="hover"] [data-landing-state="hero-crear"] {
+  background-color: #124da8;
+}
+
+.landing[data-landing-preview="hover"] :is([data-landing-state="paso-dos"], [data-landing-state="estudiantes"]) {
+  border-color: rgb(22 93 204 / 40%);
+  box-shadow: 0 12px 32px rgb(20 38 61 / 12%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .landing[data-landing-preview="hover"] :is([data-landing-state="paso-dos"], [data-landing-state="estudiantes"]) {
+    transform: translateY(-2px);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .landing [data-landing-hover]:hover {
+    border-color: rgb(22 93 204 / 40%);
+    box-shadow: 0 12px 32px rgb(20 38 61 / 12%);
+  }
+
+  .landing a.bg-\[\#165DCC\]:hover {
+    background-color: #124da8;
+  }
+
+  .landing a.text-\[\#165DCC\]:hover,
+  .landing summary:hover {
+    background-color: #eff6ff;
+  }
+
+  .landing nav a:hover {
+    color: #165dcc;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .landing [data-landing-hover] {
+    transition: transform 250ms ease, box-shadow 250ms ease, border-color 250ms ease;
+  }
+
+  .landing [data-landing-hover]:hover {
+    transform: translateY(-2px);
+  }
+
+  .landing :is(a, summary) {
+    transition: color 150ms ease, background-color 150ms ease;
+  }
+}
+
 /* Movimiento de los esqueletos de carga, sin alterar las pantallas listas. */
 @keyframes carga-brillo {
   from { background-position: 180% 0; }
