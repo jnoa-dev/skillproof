@@ -199,6 +199,11 @@ function pantalla({ consulta = "", auth = {}, configuracion = { external: { goog
   return { renderizar, cambiar, boton, enviar, navegacion, preferencias, solicitudes };
 }
 
+test("Crear cuenta desde la landing abre registro y conserva la prioridad del restablecimiento", () => {
+  assert.ok(nodos(pantalla({ consulta: "mode=register" }).renderizar(), "input").some(nodo => nodo.props.name === "nombre"));
+  assert.equal(nodos(pantalla({ consulta: "mode=register&estado=restablecer" }).renderizar(), "input").some(nodo => nodo.props.name === "nombre"), false);
+});
+
 test("El login respeta Recordarme y normaliza solo el correo", async () => {
   let argumentos;
   const vista = pantalla({ auth: { signInWithPassword: async datos => { argumentos = datos; return { error: null }; } } });
