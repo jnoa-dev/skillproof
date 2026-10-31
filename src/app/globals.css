@@ -113,6 +113,14 @@ body {
 }
 
 /* Movimiento de los esqueletos de carga, sin alterar las pantallas listas. */
+@media print {
+  body:has(.defense-report) * { visibility: hidden; }
+  body:has(.defense-report) .defense-report,
+  body:has(.defense-report) .defense-report * { visibility: visible; }
+  body:has(.defense-report) .defense-report { position: absolute; inset: 0; width: 100%; }
+  .defense-report details { break-inside: avoid; }
+}
+
 @keyframes carga-brillo {
   from { background-position: 180% 0; }
   to { background-position: -80% 0; }

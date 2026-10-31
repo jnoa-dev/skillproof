@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Inter } from "next/font/google";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { dashboardForRole } from "@/lib/auth/dashboard";
 
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
 
@@ -17,11 +18,15 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("display_name, role")
     .eq("id", userId)
     .maybeSingle();
+
+  const destino = dashboardForRole(profile?.role);
+  if (destino && destino !== "/dashboard") redirect(destino);
+  if (profileError || !destino) return <main className="flex min-h-screen items-center justify-center bg-slate-50 p-6"><section role="alert" className="max-w-md rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm"><h1 className="text-xl font-semibold">No pudimos verificar tu perfil</h1><p className="mt-3 text-slate-600">Necesitamos confirmar tu rol para abrir el panel correcto.</p><Link href="/dashboard" className="mt-6 inline-block rounded-lg bg-blue-700 px-5 py-3 text-white">Reintentar</Link></section></main>;
 
   const { data: challenge, error: challengeError } = await supabase
     .from("challenges")

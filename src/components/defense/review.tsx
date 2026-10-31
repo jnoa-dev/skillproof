@@ -1,0 +1,20 @@
+"use client";
+import Link from "next/link";
+import { useCallback, useEffect, useState } from "react";
+import type { DefenseSession } from "@/lib/defense/model";
+import { Answers } from "./student";
+import { card, secondary, LoadingDefense } from "./shared";
+export default function DefenseReview({ submissionId, challengeId, interview }: { submissionId: string; challengeId: string; interview: () => void }) {
+  const [session, setSession] = useState<DefenseSession | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const load = useCallback(async () => {
+    setLoading(true); setError("");
+    try { const response = await fetch(`/api/evaluator/defense?submissionId=${submissionId}`, { cache: "no-store" }); const body = await response.json(); if (!response.ok) throw new Error(body.error); setSession(body.session); }
+    catch (e) { setError(e instanceof Error ? e.message : "No pudimos cargar la defensa."); }
+    finally { setLoading(false); }
+  }, [submissionId]);
+  useEffect(() => { const timer = setTimeout(() => void load(), 0); return () => clearTimeout(timer); }, [load]);
+  if (loading) return <LoadingDefense/>;
+  return <div className="defense-report space-y-6"><div className="flex flex-wrap items-center justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-wider text-blue-700">Parte 2 · Defensa técnica</p><h2 className="mt-2 text-2xl font-bold">Revisión de la defensa</h2></div><div className="flex flex-wrap gap-3 print:hidden"><Link className={secondary} href={`/evaluator/challenges/${challengeId}/defense`}>Configurar defensa</Link><button type="button" className={secondary} onClick={interview}>Registrar entrevista</button>{session && <button type="button" className={secondary} onClick={() => { const nodes = Array.from(document.querySelectorAll<HTMLDetailsElement>(".defense-report details")); const previous = nodes.map(node => node.open); nodes.forEach(node => { node.open = true; }); window.print(); nodes.forEach((node, i) => { node.open = previous[i]; }); }}>Imprimir / guardar PDF</button>}</div></div>{error ? <section role="alert" className={card}><p className="text-sm text-red-800">{error}</p><button type="button" className={`${secondary} mt-4`} onClick={() => void load()}>Reintentar</button></section> : !session ? <section className={`${card} py-16 text-center`}><h3 className="text-xl font-semibold">Aún no hay una defensa enviada</h3><p className="mx-auto mt-3 max-w-lg text-sm leading-6 text-slate-600">Las respuestas estarán disponibles cuando el estudiante envíe su defensa. Una sesión en curso conserva sus respuestas privadas.</p><button type="button" className={`${secondary} mt-6`} onClick={() => void load()}>Actualizar estado</button></section> : <><section className={card}><h3 className="font-semibold">Contexto de la sesión</h3><dl className="mt-5 grid gap-5 text-sm sm:grid-cols-4">{[["Duración configurada", `${session.config.duration_minutes} minutos`], ["Salidas registradas", `${session.exits} / ${session.config.max_exits}`], ["Intentos de pegado bloqueados", String(session.paste_attempts)], ["Motivo del envío", session.submit_reason === "time" ? "Tiempo agotado" : session.submit_reason === "exits" ? "Límite de salidas" : "Manual"]].map(([label, value]) => <div key={label}><dt className="text-xs text-slate-600">{label}</dt><dd className="mt-2 font-semibold">{value}</dd></div>)}</dl><p className="mt-6 rounded-lg bg-blue-50 p-4 text-xs leading-6 text-blue-900">Estos registros provienen del navegador y son contexto para la revisión humana; no prueban ni descartan el uso de ayuda externa. No hay una calificación automática de defensa disponible.</p></section><Answers session={session}/><section className={card}><h3 className="font-semibold">Decisión del evaluador</h3><p className="mt-3 text-sm leading-6 text-slate-600">Contrasta las respuestas con la evidencia del repositorio y registra tu decisión en la rúbrica de la pestaña Evaluación. La defensa no altera ni publica la calificación automáticamente.</p></section></>}</div>;
+}
