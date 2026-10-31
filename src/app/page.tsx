@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
+import SectionLink from "@/components/landing/section-link";
 import { Inter } from "next/font/google";
 
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
@@ -30,18 +31,18 @@ function Landing({ mostrarEstados = false }: { mostrarEstados?: boolean }) {
         SKILLPROOF
       </Link>
 <nav aria-label="Navegación principal" className="hidden md:flex items-center gap-8">
-<Link className="text-base text-[#17212F] font-medium h-11 flex items-center" href="#como-funciona">
+<SectionLink className="text-base text-[#17212F] font-medium h-11 flex items-center" href="#como-funciona">
           Cómo funciona
-        </Link>
-<Link className="text-base text-[#17212F] font-medium h-11 flex items-center" href="#pasaporte">
+        </SectionLink>
+<SectionLink className="text-base text-[#17212F] font-medium h-11 flex items-center" href="#pasaporte">
           Pasaporte
-        </Link>
-<Link className="text-base text-[#17212F] font-medium h-11 flex items-center" href="#preguntas">
+        </SectionLink>
+<SectionLink className="text-base text-[#17212F] font-medium h-11 flex items-center" href="#preguntas">
           Preguntas
-        </Link>
-<Link className="text-base text-[#17212F] font-medium h-11 flex items-center" href="#equipo">
+        </SectionLink>
+<SectionLink className="text-base text-[#17212F] font-medium h-11 flex items-center" href="#equipo">
           Equipo
-        </Link>
+        </SectionLink>
 </nav>
 <div className="flex items-center gap-3">
 <Link className="h-11 px-4 py-2 border border-[#165DCC] text-[#165DCC] font-semibold text-base rounded-lg flex items-center justify-center" href="/login">
@@ -53,7 +54,7 @@ function Landing({ mostrarEstados = false }: { mostrarEstados?: boolean }) {
 </div>
 </div>
 </header>
-<main className="flex-1 overflow-hidden">
+<main className="flex-1 overflow-clip">
 <section className="relative bg-gradient-to-b from-[#F7F9FC] via-blue-50 to-[#E8F0FD] pt-16 pb-24 overflow-hidden">
 <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#E8F0FD] rounded-full filter blur-3xl opacity-60 pointer-events-none"></div>
 <div className="absolute top-1/3 -right-20 w-80 h-80 bg-teal-50 rounded-full filter blur-3xl opacity-70 pointer-events-none"></div>
@@ -76,9 +77,9 @@ function Landing({ mostrarEstados = false }: { mostrarEstados?: boolean }) {
 <path d="M14 5l7 7m0 0l-7 7m7-7H3" strokeLinecap="round" strokeLinejoin="round"></path>
 </svg>
 </Link>
-<Link className="h-12 px-6 border border-[#165DCC] text-[#165DCC] font-semibold text-base rounded-lg inline-flex items-center justify-center bg-white/60" href="#ejemplo-pasaporte">
+<SectionLink className="h-12 px-6 border border-[#165DCC] text-[#165DCC] font-semibold text-base rounded-lg inline-flex items-center justify-center bg-white/60" href="#ejemplo-pasaporte">
                 Ver ejemplo de pasaporte
-              </Link>
+              </SectionLink>
 </div>
 <div className="flex items-center gap-2.5 text-sm text-[#536174] pt-2">
 <span className="w-6 h-6 rounded-full bg-[#087F8C]/15 text-[#536174] flex items-center justify-center flex-shrink-0">
@@ -253,8 +254,8 @@ function Landing({ mostrarEstados = false }: { mostrarEstados?: boolean }) {
 <rect fill="#CBD5E1" height="4" rx="2" width="34" x="32" y="78"></rect>
 </g>
 
-<text fill="#737785" font-family="Inter, sans-serif" font-size="24" font-weight="bold" opacity="0.7" x="158" y="50">?</text>
-<text fill="#737785" font-family="Inter, sans-serif" font-size="16" font-weight="bold" opacity="0.5" x="178" y="36">?</text>
+<text fill="#737785" fontFamily="Inter, sans-serif" fontSize="24" fontWeight="bold" opacity="0.7" x="158" y="50">?</text>
+<text fill="#737785" fontFamily="Inter, sans-serif" fontSize="16" fontWeight="bold" opacity="0.5" x="178" y="36">?</text>
 
 <g transform="translate(170, 48)">
 
@@ -669,9 +670,9 @@ function Landing({ mostrarEstados = false }: { mostrarEstados?: boolean }) {
 </li>
 </ul>
 <div>
-<Link className="h-12 px-6 border border-[#165DCC] text-[#165DCC] font-semibold text-base rounded-lg inline-flex items-center justify-center bg-white" href="#ejemplo-pasaporte">
+<SectionLink className="h-12 px-6 border border-[#165DCC] text-[#165DCC] font-semibold text-base rounded-lg inline-flex items-center justify-center bg-white" href="#ejemplo-pasaporte">
                 Ver ejemplo de pasaporte
-              </Link>
+              </SectionLink>
 </div>
 </div>
 <div className="lg:col-span-7">
@@ -872,7 +873,7 @@ function Landing({ mostrarEstados = false }: { mostrarEstados?: boolean }) {
 </span>
 </summary>
 <div className="px-5 pb-5 pt-1 text-base text-[#536174] leading-relaxed border-t border-gray-100">
-                Una persona evaluadora revisa tu evidencia con una rúbrica de 1 a 4.
+                Un profesional revisará tu evidencia y evaluará tu solución con una rúbrica de 1 a 4.
               </div>
 </details>
 <details className="group bg-white border border-[#E2E8F0] rounded-[12px] shadow-sm overflow-hidden">
@@ -925,19 +926,6 @@ function Landing({ mostrarEstados = false }: { mostrarEstados?: boolean }) {
 </summary>
 <div className="px-5 pb-5 pt-1 text-base text-[#536174] leading-relaxed border-t border-gray-100">
                 Cualquier persona que tenga tu enlace. Tu repositorio y tu documentación solo se muestran si autorizas que la evidencia sea pública.
-              </div>
-</details>
-<details className="group bg-white border border-[#E2E8F0] rounded-[12px] shadow-sm overflow-hidden">
-<summary className="flex justify-between items-center p-5 cursor-pointer list-none select-none">
-<span className="text-base font-semibold text-[#14263D]">¿Cuántos desafíos hay disponibles?</span>
-<span className="w-8 h-8 rounded-full bg-[#E8F0FD]/60 text-[#165DCC] flex items-center justify-center flex-shrink-0 group-open:rotate-180">
-<svg aria-hidden="true" focusable="false" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-<path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round"></path>
-</svg>
-</span>
-</summary>
-<div className="px-5 pb-5 pt-1 text-base text-[#536174] leading-relaxed border-t border-gray-100">
-                Por ahora hay un desafío disponible.
               </div>
 </details>
 </div>
@@ -1026,7 +1014,7 @@ function Landing({ mostrarEstados = false }: { mostrarEstados?: boolean }) {
             Las personas detrás de SKILLPROOF
           </h2>
 <p className="text-base text-[#536174] max-w-2xl mx-auto">
-            Proyecto desarrollado en el Hackatón por un equipo que combina backend, diseño y producto.
+            Proyecto desarrollado en el Hackatón por Assemblerss, un equipo que combina backend, diseño y producto.
           </p>
 </div>
 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -1095,7 +1083,7 @@ function Landing({ mostrarEstados = false }: { mostrarEstados?: boolean }) {
 <div className="flex items-center gap-3">
 <span className="font-bold text-[#14263D] tracking-tight">SKILLPROOF</span>
 <span className="text-sm text-[#536174]">·</span>
-<span className="text-sm text-[#536174]">© 2026 SKILLPROOF · Proyecto del Hackatón</span>
+<span className="text-sm text-[#536174]">© SKILLPROOF · Proyecto del Hackatón</span>
 </div>
 <div className="flex items-center gap-6">
 <button className="text-sm text-[#536174]" type="button" disabled title="Términos aún no disponible">Términos</button>

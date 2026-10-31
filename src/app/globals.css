@@ -29,6 +29,20 @@ body {
   scroll-margin-top: 6rem;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  html:has(.landing) {
+    scroll-behavior: smooth;
+  }
+
+  .landing > main {
+    transition: filter 180ms ease-out;
+  }
+
+  .landing[data-deslizando="true"] > main {
+    filter: blur(2px);
+  }
+}
+
 .landing :is(a, button, summary):focus-visible {
   outline: 2px solid #165dcc;
   outline-offset: 4px;
