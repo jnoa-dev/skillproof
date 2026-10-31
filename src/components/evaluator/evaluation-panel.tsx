@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { enlacePublico, registro, texto } from "@/lib/passport/datos";
 import EntrevistasEntrega from "./submission-interviews";
+import DefenseReview from "@/components/defense/review";
 
 type Criterio = {
   id: string;
@@ -29,6 +30,7 @@ type ResultadoIA = {
 };
 type Puntaje = { valor: string; comentario: string };
 type Props = {
+  challengeId: string;
   submissionId: string;
   usuarioId: string;
   nombreEvaluador: string;
@@ -190,6 +192,7 @@ export function ListaEntregas() {
 }
 
 export default function EvaluationPanel({
+  challengeId,
   submissionId,
   usuarioId,
   nombreEvaluador,
@@ -198,7 +201,7 @@ export default function EvaluationPanel({
   evidencia,
   soloLectura,
 }: Props) {
-  const [seccion, setSeccion] = useState<"evaluacion" | "entrevistas">("evaluacion");
+  const [seccion, setSeccion] = useState<"evaluacion" | "entrevistas" | "defensa">("evaluacion");
   const [registrarEntrevista, setRegistrarEntrevista] = useState(false);
   const [totalEntrevistas, setTotalEntrevistas] = useState<number | null>(null);
   const [navegacion, setNavegacion] = useState<string[]>([]);
@@ -550,7 +553,9 @@ export default function EvaluationPanel({
           <div className="max-w-2xl"><h1 className="text-3xl font-bold tracking-tight">Evaluación: {tituloDesafio}</h1><span className={`mt-3 inline-flex rounded border px-2 py-1 text-xs font-semibold uppercase ${finalizada ? "border-emerald-200 bg-emerald-50 text-emerald-800" : guardada ? "border-amber-200 bg-amber-50 text-amber-800" : "border-blue-100 bg-blue-50 text-slate-700"}`}>{cargando ? "Cargando" : finalizada ? "Finalizada" : guardada ? "En revisión" : "Sin evaluar"}</span><p className="mt-3 text-sm text-slate-600">Estudiante: <strong>{nombreEstudiante}</strong>{fecha && <> · Entrega actualizada el {fecha}</>}</p></div>
           <div className="space-y-3"><div className="flex flex-wrap gap-2"><button type="button" onClick={() => perfilModal.current?.showModal()} className={`${boton} border-slate-300 bg-white`}>Ver perfil del candidato</button><button type="button" onClick={() => { setSeccion("entrevistas"); setRegistrarEntrevista(true); }} className={`${boton} border-slate-300 bg-white`}>Registrar entrevista</button></div>{navegacion.includes(submissionId) && <nav aria-label="Navegar entre entregas" className="inline-flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-2 text-xs">{navegacion.indexOf(submissionId) > 0 ? <Link aria-label="Entrega anterior" href={`/evaluator/submissions/${navegacion[navegacion.indexOf(submissionId) - 1]}`} className="rounded p-2 text-blue-700 focus-visible:outline-2 focus-visible:outline-blue-700">←</Link> : <span aria-disabled="true" className="p-2 text-slate-300">←</span>}<span>{navegacion.indexOf(submissionId) + 1} de {navegacion.length} cargadas</span>{navegacion.indexOf(submissionId) < navegacion.length - 1 ? <Link aria-label="Entrega siguiente" href={`/evaluator/submissions/${navegacion[navegacion.indexOf(submissionId) + 1]}`} className="rounded p-2 text-blue-700 focus-visible:outline-2 focus-visible:outline-blue-700">→</Link> : <span aria-disabled="true" className="p-2 text-slate-300">→</span>}</nav>}</div>
         </div>
-        <nav aria-label="Secciones de la entrega" className="mt-6 flex gap-6 border-b border-slate-200 text-sm"><button type="button" aria-pressed={seccion === "evaluacion"} onClick={() => setSeccion("evaluacion")} className={`min-h-12 border-b-2 font-medium focus-visible:outline-2 focus-visible:outline-blue-700 ${seccion === "evaluacion" ? "border-blue-600 text-blue-700" : "border-transparent text-slate-600"}`}>Evaluación</button><button type="button" aria-pressed={seccion === "entrevistas"} onClick={() => setSeccion("entrevistas")} className={`min-h-12 border-b-2 font-medium focus-visible:outline-2 focus-visible:outline-blue-700 ${seccion === "entrevistas" ? "border-blue-600 text-blue-700" : "border-transparent text-slate-600"}`}>Entrevistas{totalEntrevistas !== null ? ` (${totalEntrevistas})` : ""}</button></nav>
+        <nav aria-label="Secciones de la entrega" className="mt-6 flex gap-6 border-b border-slate-200 text-sm"><button type="button" aria-pressed={seccion === "evaluacion"} onClick={() => setSeccion("evaluacion")} className={`min-h-12 border-b-2 font-medium focus-visible:outline-2 focus-visible:outline-blue-700 ${seccion === "evaluacion" ? "border-blue-600 text-blue-700" : "border-transparent text-slate-600"}`}>Evaluación</button><button type="button" aria-pressed={seccion === "entrevistas"} onClick={() => setSeccion("entrevistas")} className={`min-h-12 border-b-2 font-medium focus-visible:outline-2 focus-visible:outline-blue-700 ${seccion === "entrevistas" ? "border-blue-600 text-blue-700" : "border-transparent text-slate-600"}`}>Entrevistas{totalEntrevistas !== null ? ` (${totalEntrevistas})` : ""}</button><button type="button" onClick={() => setSeccion("defensa")} aria-pressed={seccion === "defensa"} className={`min-h-12 border-b-2 font-medium focus-visible:outline-2 focus-visible:outline-blue-700 ${seccion === "defensa" ? "border-blue-600 text-blue-700" : "border-transparent text-slate-600"}`}>Defensa técnica</button></nav>
+        <div hidden={seccion !== "defensa"} className="mt-8">{seccion === "defensa" && <DefenseReview submissionId={submissionId} challengeId={challengeId} interview={() => { setSeccion("entrevistas"); setRegistrarEntrevista(true); }}/>}</div>
+
         <div hidden={seccion !== "entrevistas"} className="pt-6"><EntrevistasEntrega submissionId={submissionId} nombreEstudiante={nombreEstudiante} tituloDesafio={tituloDesafio} repositorio={evidencia.repositorio} registrar={registrarEntrevista} alCerrarRegistro={() => setRegistrarEntrevista(false)} alContar={setTotalEntrevistas}/></div>
         <div hidden={seccion !== "evaluacion"}><div className="mt-8 grid items-start gap-6 lg:grid-cols-12">
           <div className="space-y-6 lg:col-span-5"><div className="flex justify-between text-xs font-medium uppercase"><span>Evidencia técnica presentada</span><span className="text-slate-500">Solo lectura</span></div>

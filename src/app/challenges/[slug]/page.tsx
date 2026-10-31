@@ -150,6 +150,7 @@ async function ChallengeContent({
           </div>
           <aside className="flex flex-col gap-6 lg:sticky lg:top-6 lg:col-span-4">
             <section className={tarjeta} aria-labelledby="resumen-entrega">
+              {enviado && <Link href={`${rutaDesafio}/defense`} className="mb-5 block rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm font-semibold text-blue-700">Defensa técnica →</Link>}
               <h2 id="resumen-entrega" className={titulo}>Tu entrega</h2>
               <p className="mt-4 flex flex-wrap items-center gap-2 text-sm">Estado: <span className="rounded-full bg-blue-100 px-2.5 py-1 text-xs font-semibold tracking-wider text-slate-600 uppercase">{estado}</span></p>
               <p className="mt-4 text-sm text-[var(--dashboard-muted)]">{errorEntrega ? "No pudimos verificar el estado de tu entrega." : enviado ? "Tu solución está pendiente de revisión." : draft ? fechaBorrador ? `Guardaste un borrador el ${fechaBorrador}.` : "Tienes un borrador guardado. Fecha no disponible." : "Prepara tu repositorio, tu documentación y tu justificación."}</p>
