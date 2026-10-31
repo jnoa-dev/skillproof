@@ -3,12 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { enlacePublico, registro, texto } from "@/lib/passport/datos";
+import EntrevistasEntrega from "./submission-interviews";
 
 type Criterio = {
   id: string;
   titulo: string;
   descripcion: string;
   maximo: number;
+  peso: number | null;
 };
 type EvidenciaIA = {
   file: string;
@@ -196,6 +198,12 @@ export default function EvaluationPanel({
   evidencia,
   soloLectura,
 }: Props) {
+  const [seccion, setSeccion] = useState<"evaluacion" | "entrevistas">("evaluacion");
+  const [registrarEntrevista, setRegistrarEntrevista] = useState(false);
+  const [totalEntrevistas, setTotalEntrevistas] = useState<number | null>(null);
+  const [navegacion, setNavegacion] = useState<string[]>([]);
+  const [guardada, setGuardada] = useState(false);
+  const perfilModal = useRef<HTMLDialogElement>(null);
   const [criterios, setCriterios] = useState<Criterio[]>([]);
   const [criteriosSeleccionadosIA, setCriteriosSeleccionadosIA] = useState<
     string[]
@@ -247,6 +255,7 @@ export default function EvaluationPanel({
             id: texto(item.id),
             titulo: texto(item.title),
             descripcion: texto(item.description),
+            peso: item.weight !== null && item.weight !== undefined && Number.isFinite(Number(item.weight)) ? Number(item.weight) : null,
             maximo:
               item.max_score === null || item.max_score === undefined
                 ? NaN
@@ -287,6 +296,7 @@ export default function EvaluationPanel({
           setPuntajes(valores);
           setResumen(texto(evaluacion.summary));
           setFinalizada(evaluacion.status === "finalized");
+          setGuardada(Boolean(evaluacion.id));
         }
       } catch (problema) {
         if (!controlador.signal.aborted)
@@ -302,6 +312,21 @@ export default function EvaluationPanel({
     void consultar();
     return () => controlador.abort();
   }, [submissionId, usuarioId, soloLectura, intento]);
+
+  useEffect(() => {
+    const controlador = new AbortController();
+    async function cargarNavegacion() {
+      try {
+        const respuesta = await fetch("/api/evaluator/submissions", { cache: "no-store", signal: controlador.signal });
+        if (!respuesta.ok) return;
+        const contenido = registro(await respuesta.json());
+        if (!Array.isArray(contenido.submissions)) return;
+        if (!controlador.signal.aborted) setNavegacion(contenido.submissions.map(registro).map(item => texto(item.id)).filter(esUuid));
+      } catch { /* La navegación auxiliar no bloquea la evaluación. */ }
+    }
+    void cargarNavegacion();
+    return () => controlador.abort();
+  }, []);
 
   const valido = (criterio: Criterio) => {
     const valor = puntajes[criterio.id]?.valor ?? "";
@@ -399,6 +424,7 @@ export default function EvaluationPanel({
         throw new Error(
           "No pudimos confirmar la finalización. Comprueba el estado antes de volver a enviarla.",
         );
+      setGuardada(true);
       setExito(true);
       setMensaje(
         accion === "finalize"
@@ -476,7 +502,7 @@ export default function EvaluationPanel({
       : null;
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#f8f9ff] text-[#14263d]">
+    <div className="flex min-h-screen flex-col bg-[#f7f9fc] text-[#14263d]">
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex min-h-16 max-w-[1200px] flex-wrap items-center justify-between gap-4 px-6">
           <div className="flex min-h-16 flex-wrap items-center gap-8">
@@ -487,15 +513,14 @@ export default function EvaluationPanel({
               aria-label="Navegación del evaluador"
               className="flex gap-6 text-sm"
             >
+              <Link href="/evaluator" className="text-slate-600 hover:text-blue-700">Inicio</Link>
               <Link
-                href="/evaluator"
+                href="/evaluator/submissions"
                 className="text-slate-600 hover:text-blue-700"
               >
-                Entregas disponibles
+                Entregas por evaluar
               </Link>
-              <a href="#decision-evaluador" className="text-blue-700">
-                Revisión
-              </a>
+              <Link href="/interviews" className="text-slate-600 hover:text-blue-700">Entrevistas</Link>
             </nav>
           </div>
           <Link
@@ -513,30 +538,22 @@ export default function EvaluationPanel({
           aria-label="Migas de pan"
           className="flex flex-wrap gap-2 text-sm text-slate-500"
         >
-          <Link href="/evaluator" className="text-blue-700">
-            Entregas disponibles
+          <Link href="/evaluator/submissions" className="text-blue-700">
+            Entregas por evaluar
           </Link>
           <span aria-hidden="true">›</span>
           <span>{tituloDesafio}</span>
           <span aria-hidden="true">›</span>
           <span>{nombreEstudiante}</span>
         </nav>
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
-          <h1 className="text-3xl font-bold tracking-tight">
-            Evaluación: {tituloDesafio}
-          </h1>
-          <span
-            className={`rounded border px-3 py-1 text-xs font-semibold uppercase ${finalizada ? "border-teal-200 bg-teal-50 text-teal-800" : "border-amber-200 bg-amber-50 text-amber-800"}`}
-          >
-            {cargando ? "Cargando" : finalizada ? "Finalizada" : "En revisión"}
-          </span>
+        <div className="mt-5 flex flex-wrap items-start justify-between gap-5">
+          <div className="max-w-2xl"><h1 className="text-3xl font-bold tracking-tight">Evaluación: {tituloDesafio}</h1><span className={`mt-3 inline-flex rounded border px-2 py-1 text-xs font-semibold uppercase ${finalizada ? "border-emerald-200 bg-emerald-50 text-emerald-800" : guardada ? "border-amber-200 bg-amber-50 text-amber-800" : "border-blue-100 bg-blue-50 text-slate-700"}`}>{cargando ? "Cargando" : finalizada ? "Finalizada" : guardada ? "En revisión" : "Sin evaluar"}</span><p className="mt-3 text-sm text-slate-600">Estudiante: <strong>{nombreEstudiante}</strong>{fecha && <> · Entrega actualizada el {fecha}</>}</p></div>
+          <div className="space-y-3"><div className="flex flex-wrap gap-2"><button type="button" onClick={() => perfilModal.current?.showModal()} className={`${boton} border-slate-300 bg-white`}>Ver perfil del candidato</button><button type="button" onClick={() => { setSeccion("entrevistas"); setRegistrarEntrevista(true); }} className={`${boton} border-slate-300 bg-white`}>Registrar entrevista</button></div>{navegacion.includes(submissionId) && <nav aria-label="Navegar entre entregas" className="inline-flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-2 text-xs">{navegacion.indexOf(submissionId) > 0 ? <Link aria-label="Entrega anterior" href={`/evaluator/submissions/${navegacion[navegacion.indexOf(submissionId) - 1]}`} className="rounded p-2 text-blue-700 focus-visible:outline-2 focus-visible:outline-blue-700">←</Link> : <span aria-disabled="true" className="p-2 text-slate-300">←</span>}<span>{navegacion.indexOf(submissionId) + 1} de {navegacion.length} cargadas</span>{navegacion.indexOf(submissionId) < navegacion.length - 1 ? <Link aria-label="Entrega siguiente" href={`/evaluator/submissions/${navegacion[navegacion.indexOf(submissionId) + 1]}`} className="rounded p-2 text-blue-700 focus-visible:outline-2 focus-visible:outline-blue-700">→</Link> : <span aria-disabled="true" className="p-2 text-slate-300">→</span>}</nav>}</div>
         </div>
-        <p className="mt-3 text-sm text-slate-600">
-          Estudiante: <strong>{nombreEstudiante}</strong>
-          {fecha && <> · Entrega actualizada el {fecha}</>}
-        </p>
-        <div className="mt-8 grid items-start gap-6 lg:grid-cols-12">
-          <div className="space-y-6 lg:col-span-5">
+        <nav aria-label="Secciones de la entrega" className="mt-6 flex gap-6 border-b border-slate-200 text-sm"><button type="button" aria-pressed={seccion === "evaluacion"} onClick={() => setSeccion("evaluacion")} className={`min-h-12 border-b-2 font-medium focus-visible:outline-2 focus-visible:outline-blue-700 ${seccion === "evaluacion" ? "border-blue-600 text-blue-700" : "border-transparent text-slate-600"}`}>Evaluación</button><button type="button" aria-pressed={seccion === "entrevistas"} onClick={() => setSeccion("entrevistas")} className={`min-h-12 border-b-2 font-medium focus-visible:outline-2 focus-visible:outline-blue-700 ${seccion === "entrevistas" ? "border-blue-600 text-blue-700" : "border-transparent text-slate-600"}`}>Entrevistas{totalEntrevistas !== null ? ` (${totalEntrevistas})` : ""}</button></nav>
+        <div hidden={seccion !== "entrevistas"} className="pt-6"><EntrevistasEntrega submissionId={submissionId} nombreEstudiante={nombreEstudiante} tituloDesafio={tituloDesafio} repositorio={evidencia.repositorio} registrar={registrarEntrevista} alCerrarRegistro={() => setRegistrarEntrevista(false)} alContar={setTotalEntrevistas}/></div>
+        <div hidden={seccion !== "evaluacion"}><div className="mt-8 grid items-start gap-6 lg:grid-cols-12">
+          <div className="space-y-6 lg:col-span-5"><div className="flex justify-between text-xs font-medium uppercase"><span>Evidencia técnica presentada</span><span className="text-slate-500">Solo lectura</span></div>
             {evidenciaIncompleta && (
               <section
                 role="status"
@@ -563,7 +580,7 @@ export default function EvaluationPanel({
               return (
                 <section key={etiqueta} className={tarjeta}>
                   <h2 className="text-xl font-semibold">{etiqueta}</h2>
-                  <p className="mt-4 max-h-96 overflow-auto whitespace-pre-wrap break-words rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono text-sm leading-relaxed">
+                  <p className="mt-4 max-h-96 overflow-auto whitespace-pre-wrap break-words rounded-lg border border-slate-800 bg-slate-900 p-3 font-mono text-sm text-cyan-200 leading-relaxed">
                     {valor || "No disponible"}
                   </p>
                   {url && (
@@ -634,7 +651,7 @@ export default function EvaluationPanel({
                 muestra limitada del repositorio.
               </p>
 
-              <fieldset className="mt-4 space-y-2" disabled={analizandoIA}>
+              <fieldset className="mt-4 grid gap-2 sm:grid-cols-3" disabled={analizandoIA || cargando || Boolean(errorCarga)}>
                 <legend className="text-sm font-semibold">
                   Criterios para esta revisión
                 </legend>
@@ -642,7 +659,7 @@ export default function EvaluationPanel({
                 {criterios.map((criterio) => (
                   <label
                     key={criterio.id}
-                    className="flex items-start gap-2 text-sm"
+                    className="flex items-start gap-2 rounded-md border border-teal-200 bg-white p-2 text-xs"
                   >
                     <input
                       type="checkbox"
@@ -664,7 +681,7 @@ export default function EvaluationPanel({
               <button
                 type="button"
                 onClick={() => void revisarConIA()}
-                disabled={analizandoIA || criteriosSeleccionadosIA.length === 0}
+                disabled={analizandoIA || cargando || Boolean(errorCarga) || criteriosSeleccionadosIA.length === 0}
                 className={`${boton} mt-4 border-teal-700 bg-teal-700 text-white`}
               >
                 {analizandoIA
@@ -712,9 +729,10 @@ export default function EvaluationPanel({
                 </div>
               )}
 
+              <p role="status" className="mt-3 text-xs text-teal-800">Estado: {analizandoIA ? "Analizando repositorio…" : resultadosIA.length ? "Resultados disponibles" : "Sin resultados aún"}</p>
               <p className="mt-4 border-t border-teal-200 pt-3 text-xs text-slate-600">
                 La IA no guarda ni finaliza la evaluación. El evaluador revisa
-                la evidencia y decide el puntaje final.
+                la evidencia y decide el puntaje final. Sugerencia generada por IA; puede contener errores.
               </p>
             </section>{" "}
             <section
@@ -723,10 +741,10 @@ export default function EvaluationPanel({
               className={`${tarjeta} scroll-mt-6`}
             >
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
-                <h2 className="text-2xl font-bold">Decisión del evaluador</h2>
+                <div><h2 className="text-2xl font-bold">Decisión del evaluador</h2><p className="mt-1 text-sm text-slate-600">Califica de forma independiente cada dimensión técnica obligatoria.</p></div>
                 <span
                   aria-live="polite"
-                  className={`text-xs ${calificadas === criterios.length && criterios.length > 0 ? "font-semibold text-blue-700" : "text-slate-500"}`}
+                  className={`rounded-full bg-blue-50 px-3 py-2 text-xs ${calificadas === criterios.length && criterios.length > 0 ? "font-semibold text-blue-700" : "text-slate-500"}`}
                 >
                   {calificadas === criterios.length && criterios.length > 0 && (
                     <span aria-hidden="true">✓ </span>
@@ -794,21 +812,22 @@ export default function EvaluationPanel({
                     disabled={bloqueada}
                     className="mt-6 min-w-0 space-y-5 border-0 p-0"
                   >
-                    {criterios.map((criterio) => (
+                    {criterios.map((criterio, indice) => (
                       <fieldset
                         key={criterio.id}
-                        className={`rounded-xl border bg-[#f8f9ff] p-5 ${mostrarPendientes && !valido(criterio) ? "border-amber-400" : "border-slate-200"}`}
+                        className={`rounded-xl border bg-[#eff3ff] p-5 ${mostrarPendientes && !valido(criterio) ? "border-amber-400" : "border-slate-200"}`}
                       >
                         <legend className="px-1 text-lg font-semibold">
-                          {criterio.titulo || "Criterio sin título"}
+                          {indice + 1}. {criterio.titulo || "Criterio sin título"}
                         </legend>
+                        {criterio.peso !== null && <p className="mb-2 text-right text-xs text-slate-600">Peso {criterio.peso} %</p>}
                         <p className="text-sm leading-relaxed text-slate-600">
                           {criterio.descripcion || "Sin descripción adicional."}
                         </p>
                         {Number.isInteger(criterio.maximo) &&
                         criterio.maximo <= 10 ? (
                           <div
-                            className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5"
+                            className="mt-4 flex flex-wrap gap-2"
                             role="group"
                             aria-label={`Puntaje para ${criterio.titulo}`}
                           >
@@ -1003,9 +1022,11 @@ export default function EvaluationPanel({
                 </p>
               )}
             </section>
+            <section className={tarjeta} aria-labelledby="publicacion-evaluacion"><h2 id="publicacion-evaluacion" className="border-b border-slate-200 pb-4 text-lg font-semibold">Publicación</h2><dl className="mt-4 space-y-3 text-sm"><div className="flex justify-between gap-4"><dt>Evaluación finalizada</dt><dd>{cargando ? "Cargando…" : errorCarga ? "No disponible" : finalizada ? "Sí" : "No"}</dd></div><div className="flex justify-between gap-4"><dt>Resultado publicado</dt><dd>{cargando || errorCarga || finalizada ? "No confirmado" : "No"}</dd></div></dl><p className="mt-4 text-xs leading-relaxed text-slate-500">Finalizar no confirma la publicación. La visibilidad depende de la configuración del pasaporte del estudiante.</p></section>
           </div>
-        </div>
+        </div></div>
       </main>
+      <dialog ref={perfilModal} aria-labelledby="perfil-candidato-entrega" className="fixed inset-0 m-auto w-[calc(100%_-_3rem)] max-w-md rounded-xl border border-slate-200 bg-white p-6 text-[#14263d] shadow-xl backdrop:bg-slate-900/40 backdrop:backdrop-blur-sm"><h2 id="perfil-candidato-entrega" className="text-xl font-semibold">Perfil del candidato</h2><p className="mt-4 font-medium">{nombreEstudiante}</p><p className="mt-2 text-sm text-slate-600">Desafío: {tituloDesafio}</p><p className="mt-4 text-sm leading-relaxed text-slate-600">Esta vista muestra los datos disponibles en la entrega. El historial completo del candidato todavía no está conectado.</p><button type="button" onClick={() => perfilModal.current?.close()} className={`${boton} mt-5 border-slate-300`}>Cerrar</button></dialog>
       <dialog
         ref={modal}
         aria-labelledby="confirmar-evaluacion"
@@ -1042,7 +1063,7 @@ export default function EvaluationPanel({
       </dialog>
       <footer className="border-t border-slate-200 bg-white px-6 py-4 text-xs text-slate-500">
         <div className="mx-auto flex max-w-[1200px] justify-between gap-4">
-          <span>© {2026} SKILLPROOF</span>
+          <span>© SKILLPROOF</span>
           <div className="flex gap-2">
             <button
               type="button"

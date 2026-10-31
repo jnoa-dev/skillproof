@@ -13,7 +13,7 @@ export default function EvaluacionPage({ params }: { params: Promise<{ submissio
 }
 
 function AccesoDenegado({ mensaje }: { mensaje: string }) {
-  return <main className="min-h-screen bg-slate-50 p-8 text-slate-900"><h1 className="text-xl font-semibold">{mensaje}</h1><Link href="/evaluator" className="mt-4 inline-block text-blue-700 underline">Volver a entregas disponibles</Link></main>;
+  return <main className="min-h-screen bg-slate-50 p-8 text-slate-900"><h1 className="text-xl font-semibold">{mensaje}</h1><Link href="/evaluator/submissions" className="mt-4 inline-block text-blue-700 underline">Volver a Entregas por evaluar</Link></main>;
 }
 
 async function ContenidoEvaluacion({ params }: { params: Promise<{ submissionId: string }> }) {
@@ -29,12 +29,12 @@ async function ContenidoEvaluacion({ params }: { params: Promise<{ submissionId:
   // Se verifica la asignación antes de recuperar o enviar evidencia al navegador.
   const { data: evaluacion, error: errorEvaluacion } = await supabase.from("evaluations").select("evaluator_id, status").eq("submission_id", submissionId).maybeSingle();
   if (errorEvaluacion) return <AccesoDenegado mensaje="No pudimos verificar la asignación de esta evaluación"/>;
-  if (evaluacion && evaluacion.evaluator_id !== usuario && perfil.role !== "admin") return <AccesoDenegado mensaje="Esta evaluación está asignada a otro evaluador"/>;
+  if (evaluacion && evaluacion.evaluator_id !== usuario && perfil.role !== "admin") redirect("/evaluator/submissions?estado=entrega-no-disponible");
   const { data: entrega, error: errorEntrega } = await supabase.from("submissions")
     .select("id, user_id, challenge_id, status, github_repo_url, documentation, justification, problem_description, updated_at")
     .eq("id", submissionId).eq("status", "submitted").maybeSingle();
   if (errorEntrega) return <AccesoDenegado mensaje="No pudimos cargar la entrega"/>;
-  if (!entrega) notFound();
+  if (!entrega) redirect("/evaluator/submissions?estado=entrega-no-disponible");
   const [desafio, estudiante] = await Promise.all([
     supabase.from("challenges").select("title").eq("id", entrega.challenge_id).maybeSingle(),
     supabase.from("profiles").select("display_name").eq("id", entrega.user_id).maybeSingle(),
