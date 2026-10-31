@@ -519,7 +519,7 @@ function FormularioAcceso() {
       </p>
 
       <footer className="flex min-h-[82px] shrink-0 flex-wrap items-start justify-between gap-3 border-t border-gray-300 bg-white px-7 py-[18px] text-[11px] leading-4 text-[var(--login-muted)]">
-        <span>© {new Date().getFullYear()} SKILLPROOF</span>
+        <span>© {2026} SKILLPROOF</span>
         <div className="flex items-center gap-1.5">
           <button type="button" disabled aria-describedby="opciones-no-disponibles" title="Términos no está disponible todavía" className="cursor-not-allowed">Términos</button>
           <span aria-hidden="true">·</span>

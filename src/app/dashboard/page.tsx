@@ -134,7 +134,7 @@ export default async function DashboardPage() {
           </div>
         </>}
       </main>
-      <footer className="border-t border-slate-200 bg-white py-4 text-xs text-[var(--dashboard-muted)]"><div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-3 px-6 sm:px-8"><span>© {new Date().getFullYear()} SKILLPROOF</span><div className="flex gap-1"><button type="button" disabled title="Términos aún no está disponible" className="cursor-not-allowed">Términos</button><span aria-hidden="true">·</span><button type="button" disabled title="Soporte aún no está disponible" className="cursor-not-allowed">Soporte</button></div></div></footer>
+      <footer className="border-t border-slate-200 bg-white py-4 text-xs text-[var(--dashboard-muted)]"><div className="mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-3 px-6 sm:px-8"><span>© {2026} SKILLPROOF</span><div className="flex gap-1"><button type="button" disabled title="Términos aún no está disponible" className="cursor-not-allowed">Términos</button><span aria-hidden="true">·</span><button type="button" disabled title="Soporte aún no está disponible" className="cursor-not-allowed">Soporte</button></div></div></footer>
     </div>
   );
 }
