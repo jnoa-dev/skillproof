@@ -25,6 +25,23 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Comportamiento común de los controles en todos los apartados. */
+a[href], button:enabled, input:is([type="button"], [type="submit"], [type="checkbox"], [type="radio"]):enabled,
+select:enabled, summary, [role="button"]:not([aria-disabled="true"]) { cursor: pointer; }
+button:disabled, input:disabled, select:disabled, [aria-disabled="true"] { cursor: not-allowed; }
+a[href], a[href]:hover, a[href]:focus-visible { text-decoration-line: none; }
+
+@media (prefers-reduced-motion: no-preference) {
+  button:enabled, input:is([type="button"], [type="submit"]):enabled,
+  a[href]:where([class*="rounded"]), [role="button"]:not([aria-disabled="true"]) {
+    transition-property: scale, transform, box-shadow, background-color, border-color, color;
+    transition-duration: 150ms;
+    transition-timing-function: ease-out;
+  }
+  button:enabled:active, input:is([type="button"], [type="submit"]):enabled:active,
+  a[href]:where([class*="rounded"]):active, [role="button"]:not([aria-disabled="true"]):active { scale: 0.97; }
+}
+
 .landing :is(section[id], div[id]) {
   scroll-margin-top: 6rem;
 }

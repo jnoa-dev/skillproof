@@ -1,5 +1,7 @@
 "use client";
 
+
+import { LoadingState } from "@/components/ui/loading-state";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -16,9 +18,7 @@ function fecha(valor: string | null) {
 function Icono({ tipo }: { tipo: "pending" | "draft" | "finalized" }) {
   return <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{tipo === "pending" ? <><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></> : tipo === "finalized" ? <><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></> : <><path d="M4 5h12M4 9h9M4 13h5m3 4 6-6 3 3-6 6-4 1Z"/></>}</svg>;
 }
-export function CargaDashboardEvaluador({ soloEntregas = false }: { soloEntregas?: boolean }) {
-  return <div role="status" aria-busy="true" className="space-y-8"><span className="sr-only">Cargando indicadores y entregas…</span><div aria-hidden="true" className="carga-animada space-y-8">{!soloEntregas && <div className="grid gap-6 md:grid-cols-3">{[0, 1, 2].map(n => <div key={n} className="space-y-4 rounded-xl border border-slate-100 bg-white p-6"><div className="h-4 w-1/2 rounded bg-slate-200"/><div className="h-9 w-1/3 rounded bg-slate-200"/><div className="h-3 w-2/3 rounded bg-slate-100"/></div>)}</div>}{!soloEntregas && <div className="flex justify-between gap-5 rounded-xl bg-white p-6"><div className="w-2/3 space-y-3"><div className="h-5 w-1/2 rounded bg-slate-200"/><div className="h-4 rounded bg-slate-100"/></div><div className="h-12 w-1/4 rounded bg-slate-200"/></div>}<div className="space-y-6 rounded-xl bg-white p-6"><div className="h-7 w-1/2 rounded bg-slate-200"/><div className="flex gap-4"><div className="h-12 w-1/2 rounded bg-slate-100"/><div className="h-12 w-1/4 rounded bg-slate-100"/></div>{[0, 1, 2, 3, 4, 5].map(n => <div key={n} className="flex items-center justify-between gap-4"><div className="size-9 shrink-0 rounded-full bg-slate-200"/><div className="h-4 w-1/4 rounded bg-slate-200"/><div className="h-4 w-1/3 rounded bg-slate-100"/><div className="h-8 w-1/6 rounded bg-slate-200"/></div>)}</div></div></div>;
-}
+export function CargaDashboardEvaluador({ soloEntregas = false }: { soloEntregas?: boolean }) { return <LoadingState label={soloEntregas ? "Cargando entregas por evaluar…" : "Cargando panel del evaluador…"}/>; }
 
 export default function DashboardEvaluador({ soloEntregas = false }: { soloEntregas?: boolean } = {}) {
   const router = useRouter();

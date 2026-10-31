@@ -7,6 +7,9 @@ async function action(submissionId: string, action: string, payload: Record<stri
     const db = await createClient();
     const { data, error } = await db.auth.getUser();
     if (error || !data.user) return reply({ error: "Inicia sesión nuevamente." }, 401);
+    const profile = await db.from("profiles").select("role").eq("id", data.user.id).maybeSingle();
+    if (profile.error) return reply({ error: "No pudimos verificar tu rol." }, 500);
+    if (profile.data?.role !== "student") return reply({ error: "Realizar la defensa corresponde únicamente al estudiante. Usa la revisión del evaluador para consultar respuestas." }, 403);
     const result = await db.rpc("defense_action", { p_submission_id: submissionId, p_action: action, p_payload: payload });
     if (result.error) return defenseError(result.error);
     return reply(result.data);

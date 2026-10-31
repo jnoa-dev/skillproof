@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { studentActionError } from "@/lib/auth/student";
 
 const uuidPattern = /^[0-9a-f-]{36}$/i;
 
@@ -40,6 +41,9 @@ export async function POST(request: Request) {
   if (authError || typeof userId !== "string") {
     return NextResponse.json({ error: "Inicia sesión." }, { status: 401 });
   }
+
+  const roleError = await studentActionError(supabase, userId);
+  if (roleError) return roleError;
 
   const { data: review, error: reviewError } = await supabase
     .from("interview_reviews")

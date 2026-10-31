@@ -33,18 +33,20 @@ export function Badge({ children, tone = "blue" }: { children: ReactNode; tone?:
   return <span className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-semibold ${colors[tone]}`}>{children}</span>;
 }
 
-export function InterviewShell({ evaluation = false, children }: { evaluation?: boolean; children: ReactNode }) {
+export function InterviewShell({ children }: { evaluation?: boolean; children: ReactNode }) {
   const profile = useInterviewProfile();
   const name = profile.name || "Mi cuenta";
   const role = profile.role === "admin" ? "Administrador" : profile.role === "evaluator" ? "Evaluador" : profile.role === "student" ? "Estudiante" : "Rol no disponible";
   const initials = profile.name.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join("").toUpperCase();
-  const navigation = evaluation
-    ? [{ href: "/evaluator", label: "Panel Evaluador" }, { href: "/interviews/evaluation", label: "Evaluación de Entrevistas" }, { href: "/interviews", label: "Vista estudiante" }, { href: "/passport", label: "Pasaporte Público" }]
+  const staff = profile.role === "admin" || profile.role === "evaluator";
+  const evaluation = staff;
+  const navigation = staff
+    ? [{ href: "/evaluator", label: "Inicio" }, { href: "/evaluator/interviews", label: "Entrevistas" }, { href: "/evaluator/candidates", label: "Candidatos" }]
     : [{ href: "/dashboard", label: "Dashboard" }, { href: "/interviews", label: "Entrevistas" }, { href: "/passport", label: "Pasaporte Público" }];
   return <div className="flex min-h-screen flex-col">
     <header className="sticky top-0 z-30 border-b border-[#e2e8f0] bg-white shadow-sm">
       <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-x-6 px-4 sm:px-6 lg:px-8">
-        <Link href={evaluation ? "/evaluator" : "/dashboard"} className="flex min-h-16 items-center gap-2 text-xl font-extrabold tracking-tight text-[#165dcc]">
+        <Link href={staff ? "/evaluator" : "/dashboard"} className="flex min-h-16 items-center gap-2 text-xl font-extrabold tracking-tight text-[#165dcc]">
           {evaluation ? <span className="flex size-8 items-center justify-center rounded-lg bg-[#165dcc] text-sm text-white">SP</span> : <Icon name="shield" className="size-7" />}SKILLPROOF
         </Link>
         <Link href="/account" aria-label="Mi cuenta" className="flex items-center gap-3 rounded-lg py-2">
@@ -52,7 +54,7 @@ export function InterviewShell({ evaluation = false, children }: { evaluation?: 
           <span aria-hidden="true" className="flex size-9 items-center justify-center rounded-full bg-[#165dcc] text-xs font-bold text-white ring-2 ring-blue-100">{initials || <Icon name="user" />}</span>
         </Link>
         <nav aria-label={evaluation ? "Navegación del evaluador" : "Navegación del estudiante"} className="order-last flex w-full gap-5 overflow-x-auto text-sm lg:order-none lg:w-auto lg:flex-1 lg:justify-center">
-          {navigation.map(item => <Link key={item.href} href={item.href} aria-current={item.href === (evaluation ? "/interviews/evaluation" : "/interviews") ? "page" : undefined} className={`flex min-h-12 shrink-0 items-center border-b-2 px-1 lg:min-h-16 ${item.href === (evaluation ? "/interviews/evaluation" : "/interviews") ? "border-[#165dcc] font-semibold text-[#165dcc]" : "border-transparent text-[#536174] hover:text-[#165dcc]"}`}>{item.label}</Link>)}
+          {navigation.map(item => <Link key={item.href} href={item.href} aria-current={item.href === (staff ? "/evaluator/interviews" : "/interviews") ? "page" : undefined} className={`flex min-h-12 shrink-0 items-center border-b-2 px-1 lg:min-h-16 ${item.href === (staff ? "/evaluator/interviews" : "/interviews") ? "border-[#165dcc] font-semibold text-[#165dcc]" : "border-transparent text-[#536174] hover:text-[#165dcc]"}`}>{item.label}</Link>)}
         </nav>
       </div>
     </header>

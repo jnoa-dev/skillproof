@@ -1,9 +1,12 @@
+
+import { LoadingState } from "@/components/ui/loading-state";
 import { Suspense } from "react";
 import Link from "next/link";
 import { Inter } from "next/font/google";
 import { notFound, redirect } from "next/navigation";
 import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { requireStudentPage } from "@/lib/auth/student";
 import SubmissionForm from "@/components/challenges/submission-form";
 
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
@@ -20,23 +23,10 @@ export default function ChallengePage({
   );
 }
 
-function DesafioCargando() {
-  return (
-    <div aria-busy="true" aria-label="Cargando desafío" className={`${inter.className} flex min-h-screen flex-col bg-[#f8f9ff] text-slate-900`}>
-      <span role="status" className="sr-only">Cargando desafío...</span>
-      <header className="border-b border-slate-200 bg-white"><div className="mx-auto flex h-16 max-w-[1200px] items-center gap-10 px-6 sm:px-8"><span className="text-xl font-semibold">SKILLPROOF</span><span aria-hidden="true" className="h-3 w-56 rounded bg-slate-100" /></div></header>
-      <main aria-hidden="true" className="mx-auto w-full max-w-[1200px] flex-1 px-6 py-8 sm:px-8">
-        <div className="carga-animada"><div className="h-3 w-64 max-w-full rounded bg-slate-200"/><div className="mt-4 h-8 w-96 max-w-full rounded bg-slate-300"/><div className="mt-3 h-4 w-72 max-w-full rounded bg-slate-200"/>
-          <div className="mt-6 grid items-start gap-6 lg:grid-cols-12"><div className="space-y-6 lg:col-span-8">{[2, 3, 4, 3, 6].map((filas, indice) => <div key={indice} className="rounded-xl border border-slate-200 bg-white p-6"><div className="mb-4 h-5 w-40 max-w-full rounded bg-slate-300"/>{Array.from({length: filas}, (_, fila) => <div key={fila} className={`mt-3 h-3 rounded bg-slate-200 ${fila === filas - 1 ? "w-3/4" : "w-full"}`}/>)}</div>)}</div><div className="space-y-6 lg:col-span-4">{[0, 1].map(indice => <div key={indice} className="rounded-xl border border-slate-200 bg-white p-6"><div className="h-5 w-28 rounded bg-slate-300"/><div className="mt-4 h-3 w-3/4 rounded bg-slate-200"/><div className="mt-3 h-3 w-full rounded bg-slate-200"/><div className="mt-4 h-12 w-full rounded bg-slate-300"/></div>)}</div></div>
-        </div>
-      </main>
-      <footer className="border-t border-slate-200 bg-white px-6 py-4 text-xs text-slate-600"><div className="mx-auto max-w-[1200px]">© SKILLPROOF</div></footer>
-    </div>
-  );
-}
+function DesafioCargando() { return <LoadingState fullPage label="Cargando desafío…"/>; }
 
 function ErrorDesafio({ ruta }: { ruta: string }) {
-  return <div className={`${inter.className} min-h-screen bg-[#f8f9ff] text-slate-900`}><header className="border-b border-slate-200 bg-white px-6 py-5"><div className="mx-auto max-w-[1136px]"><Link href="/dashboard" className="text-xl font-semibold">SKILLPROOF</Link></div></header><main className="mx-auto max-w-[1200px] px-6 py-8 sm:px-8"><div role="alert" className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-red-200 bg-red-50 p-4 text-red-700"><div><h1 className="text-sm font-semibold">No pudimos cargar el desafío</h1><p className="mt-1 text-xs">No pudimos completar la acción. Vuelve a intentarlo.</p></div><a href={ruta} className="rounded-md border border-red-200 bg-white px-4 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">↻ Reintentar</a></div><Link href="/dashboard" className="mt-6 inline-block text-sm text-blue-700 underline">Volver al dashboard</Link></main></div>;
+  return <div className={`${inter.className} min-h-screen bg-[#f8f9ff] text-slate-900`}><header className="border-b border-slate-200 bg-white px-6 py-5"><div className="mx-auto max-w-[1136px]"><Link href="/dashboard" className="text-xl font-semibold">SKILLPROOF</Link></div></header><main className="mx-auto max-w-[1200px] px-6 py-8 sm:px-8"><div role="alert" className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-red-200 bg-red-50 p-4 text-red-700"><div><h1 className="text-sm font-semibold">No pudimos cargar el desafío</h1><p className="mt-1 text-xs">No pudimos completar la acción. Vuelve a intentarlo.</p></div><a href={ruta} className="rounded-md border border-red-200 bg-white px-4 py-2 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">↻ Reintentar</a></div><Link href="/dashboard" className="mt-6 inline-block text-sm text-blue-700 no-underline">Volver al dashboard</Link></main></div>;
 }
 
 async function ChallengeContent({
@@ -55,6 +45,8 @@ async function ChallengeContent({
     redirect("/login");
   }
 
+  await requireStudentPage(supabase, userId);
+
   const { data: challenge, error: errorDesafio } = await supabase
     .from("challenges")
     .select("id, title, description, difficulty, requirements, deliverables")
@@ -69,6 +61,8 @@ async function ChallengeContent({
   if (!challenge) {
     notFound();
   }
+
+  const contextoPublicado = await supabase.from("challenge_editor_state").select("context").eq("challenge_id", challenge.id).maybeSingle();
 
   const { data: submission, error: errorEntrega } = await supabase
     .from("submissions")
@@ -127,7 +121,7 @@ async function ChallengeContent({
         <div className="mt-6 grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
           <div className="flex min-w-0 flex-col gap-6 lg:col-span-8">
             <section className={tarjeta} aria-labelledby="objetivo-desafio"><h2 id="objetivo-desafio" className={titulo}>Qué se busca resolver</h2><p className="mt-2 text-base leading-relaxed">{challenge.description || "El objetivo de este desafío aún no está disponible."}</p></section>
-            <section className={tarjeta} aria-labelledby="contexto-desafio"><h2 id="contexto-desafio" className={titulo}>Contexto</h2><p className="mt-2 text-base leading-relaxed text-[var(--dashboard-muted)]">No hay contexto adicional publicado para este desafío.</p></section>
+            <section className={tarjeta} aria-labelledby="contexto-desafio"><h2 id="contexto-desafio" className={titulo}>Contexto</h2><p className="mt-2 text-base leading-relaxed text-[var(--dashboard-muted)]">{contextoPublicado.data?.context || "No hay contexto adicional disponible para este desafío."}</p></section>
             <section className={tarjeta} aria-labelledby="requisitos-desafio">
               <h2 id="requisitos-desafio" className={titulo}>Requisitos</h2>
               {challenge.requirements?.length ? <ul className="mt-4 space-y-3">{challenge.requirements.map((item: string, index: number) => <li key={index} className="flex items-start gap-3 text-base"><span aria-hidden="true" className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-[var(--dashboard-primary)]"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg></span><span className="pt-1">{item}</span></li>)}</ul> : <p className="mt-3 text-sm text-[var(--dashboard-muted)]">No hay requisitos publicados para este desafío.</p>}

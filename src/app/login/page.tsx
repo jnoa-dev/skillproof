@@ -1,5 +1,7 @@
 "use client";
 
+
+import { LoadingState } from "@/components/ui/loading-state";
 import { FormEvent, Suspense, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { isAuthError, isAuthRetryableFetchError } from "@supabase/supabase-js";
@@ -34,7 +36,7 @@ function mensajeAutenticacion(error: unknown) {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<main aria-busy="true" className="flex min-h-screen items-center justify-center gap-3 bg-gray-50 text-sm text-gray-600"><span aria-hidden="true" className="size-6 rounded-full border-2 border-blue-100 border-t-blue-700 motion-safe:animate-spin"/><span role="status">Cargando...</span></main>}>
+    <Suspense fallback={<LoadingState fullPage label="Cargando acceso…"/>}>
       <FormularioAcceso />
     </Suspense>
   );

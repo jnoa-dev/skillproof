@@ -1,5 +1,7 @@
 "use client";
 
+
+import { LoadingState } from "@/components/ui/loading-state";
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -192,7 +194,7 @@ export default function PerfilCuenta({
         aria-label="Secciones de cuenta"
         className="mt-8 flex flex-wrap gap-7 border-b border-slate-200 text-sm font-medium"
       >
-        {secciones.map(([id, texto]) => (
+        {secciones.filter(([id]) => id !== "privacidad" || rol === "Estudiante").map(([id, texto]) => (
           <button
             key={id}
             type="button"
@@ -374,9 +376,7 @@ export default function PerfilCuenta({
             <h2 className="text-xl font-semibold">Privacidad y pasaporte</h2>
 
             {ocupado === "cargar-privacidad" ? (
-              <p role="status" className="mt-4 text-sm text-slate-600">
-                Cargando configuración…
-              </p>
+              <LoadingState compact label="Cargando configuración…"/>
             ) : !privacidadCargada ? (
               <button
                 type="button"
@@ -475,7 +475,7 @@ export default function PerfilCuenta({
                   {privacidad.passport_public && slugValido && (
                     <Link
                       href={`/passport/${encodeURIComponent(slug)}`}
-                      className="text-sm text-blue-700 underline"
+                      className="text-sm text-blue-700 no-underline"
                     >
                       Ver pasaporte
                     </Link>

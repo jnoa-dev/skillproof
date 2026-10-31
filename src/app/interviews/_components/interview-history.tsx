@@ -1,5 +1,7 @@
 "use client";
 
+
+import { LoadingState } from "@/components/ui/loading-state";
 import { useState } from "react";
 import Link from "next/link";
 import { AiNotice, Badge, card, field, Icon, InterviewShell, primaryButton, secondaryButton } from "./shared";
@@ -33,7 +35,7 @@ export default function InterviewHistory({ source }: { source: InterviewSource }
       <section aria-labelledby="history-heading" className="space-y-4 lg:col-span-5">
         <div className="flex items-center justify-between gap-2"><h2 id="history-heading" className="flex items-center gap-2 text-lg font-bold"><Icon name="history" className="text-slate-500" />Historial de Entrevistas</h2>{source.status === "ready" && <Badge tone="neutral">{interviews.length} registros</Badge>}</div>
         {source.status === "disconnected" && <div role="status" className={`${card} py-10 text-center`}><Icon name="history" className="mx-auto mb-4 size-10 text-[#165dcc]" /><h3 className="font-semibold">Historial no disponible</h3><p className="mt-3 text-sm leading-relaxed text-[#536174]">Aún no hay una fuente de entrevistas conectada. Cuando esté disponible, podrás consultar aquí tus sesiones.</p></div>}
-        {source.status === "loading" && <div role="status" aria-busy="true" className={`${card} space-y-4`}><p className="text-sm text-[#536174]">Cargando entrevistas...</p><div aria-hidden="true" className="carga-animada space-y-4"><div className="h-28 rounded-lg bg-slate-200" /><div className="h-28 rounded-lg bg-slate-200" /></div></div>}
+        {source.status === "loading" && <LoadingState compact label="Cargando entrevistas…"/>}
         {source.status === "error" && <div role="alert" className={card}><h3 className="font-semibold text-red-700">No pudimos cargar las entrevistas</h3><p className="mt-3 text-sm text-[#536174]">Inténtalo nuevamente para consultar tu historial.</p><a href="/interviews" className={`${secondaryButton} mt-4`}>Reintentar</a></div>}
         {source.status === "ready" && !interviews.length && <div role="status" className={`${card} py-10 text-center`}><Icon name="message" className="mx-auto mb-4 size-10 text-[#165dcc]" /><h3 className="font-semibold">No hay entrevistas registradas</h3><p className="mt-3 text-sm leading-relaxed text-[#536174]">Tus entrevistas aparecerán aquí cuando se registren.</p></div>}
         <div className="space-y-3.5">{interviews.map(item => <button key={item.id} type="button" aria-pressed={selectedId === item.id} onClick={() => { setSelectedId(item.id); setPreview(false); }} className={`w-full rounded-xl border bg-white p-5 text-left ${selectedId === item.id ? "border-2 border-[#165dcc] shadow-md" : "border-slate-200 shadow-sm hover:border-slate-400"}`}><div className="mb-3 flex flex-wrap items-center justify-between gap-2"><Badge tone={item.responsePending ? "amber" : "neutral"}>{item.responsePending ? "Pendiente de tu respuesta" : "Entrevista registrada"}</Badge><span className="font-mono text-xs text-[#536174]">{item.id}</span></div><h3 className="font-bold">{item.title}</h3>{item.evaluatorName && <p className="mt-2 text-xs text-[#536174]">{item.evaluatorName}</p>}{item.date && <p className="mt-3 border-t border-slate-100 pt-3 text-xs text-[#536174]">{item.date}</p>}</button>)}</div>

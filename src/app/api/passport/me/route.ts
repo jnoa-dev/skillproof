@@ -80,7 +80,7 @@ export async function PATCH(request: Request) {
 
   const { data: current, error: currentError } = await supabase
     .from("profiles")
-    .select("public_slug, passport_public, recruiter_history_shared")
+    .select("role, public_slug, passport_public, recruiter_history_shared")
     .eq("id", userId)
     .maybeSingle();
 
@@ -94,6 +94,7 @@ export async function PATCH(request: Request) {
   if (!current) {
     return NextResponse.json({ error: "Perfil no encontrado." }, { status: 404 });
   }
+  if (current.role !== "student") return NextResponse.json({ error: "La configuración del pasaporte corresponde al estudiante." }, { status: 403, headers: { "Cache-Control": "private, no-store" } });
 
   const nextSlug = hasSlug
     ? requestedSlug || null
@@ -157,7 +158,7 @@ export async function GET() {
 
   const { data: profile, error } = await supabase
     .from("profiles")
-    .select("public_slug, passport_public, recruiter_history_shared")
+    .select("role, public_slug, passport_public, recruiter_history_shared")
     .eq("id", userId)
     .maybeSingle();
 
@@ -171,9 +172,10 @@ export async function GET() {
   if (!profile) {
     return NextResponse.json({ error: "Perfil no encontrado." }, { status: 404 });
   }
+  if (profile.role !== "student") return NextResponse.json({ error: "La configuración del pasaporte corresponde al estudiante." }, { status: 403, headers: { "Cache-Control": "private, no-store" } });
 
   return NextResponse.json(
-    { passport: profile },
+    { passport: { public_slug: profile.public_slug, passport_public: profile.passport_public, recruiter_history_shared: profile.recruiter_history_shared } },
     { headers: { "Cache-Control": "no-store" } }
   );
 }

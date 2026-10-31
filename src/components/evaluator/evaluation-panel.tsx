@@ -1,5 +1,7 @@
 "use client";
 
+
+import { LoadingState } from "@/components/ui/loading-state";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { enlacePublico, registro, texto } from "@/lib/passport/datos";
@@ -31,6 +33,7 @@ type ResultadoIA = {
 type Puntaje = { valor: string; comentario: string };
 type Props = {
   challengeId: string;
+  candidateId: string;
   submissionId: string;
   usuarioId: string;
   nombreEvaluador: string;
@@ -115,16 +118,7 @@ export function ListaEntregas() {
     );
   if (!entregas)
     return (
-      <div role="status" aria-busy="true" className="carga-animada space-y-4">
-        <span className="sr-only">Cargando entregas...</span>
-        {[0, 1, 2].map((indice) => (
-          <div
-            key={indice}
-            aria-hidden="true"
-            className="h-24 rounded-xl bg-slate-200"
-          />
-        ))}
-      </div>
+      <LoadingState compact label="Cargando entregas…"/>
     );
   if (!entregas.length)
     return (
@@ -193,6 +187,7 @@ export function ListaEntregas() {
 
 export default function EvaluationPanel({
   challengeId,
+  candidateId,
   submissionId,
   usuarioId,
   nombreEvaluador,
@@ -523,7 +518,7 @@ export default function EvaluationPanel({
               >
                 Entregas por evaluar
               </Link>
-              <Link href="/interviews" className="text-slate-600 hover:text-blue-700">Entrevistas</Link>
+              <Link href="/evaluator/interviews" className="text-slate-600 hover:text-blue-700">Entrevistas</Link>
             </nav>
           </div>
           <Link
@@ -551,7 +546,7 @@ export default function EvaluationPanel({
         </nav>
         <div className="mt-5 flex flex-wrap items-start justify-between gap-5">
           <div className="max-w-2xl"><h1 className="text-3xl font-bold tracking-tight">Evaluación: {tituloDesafio}</h1><span className={`mt-3 inline-flex rounded border px-2 py-1 text-xs font-semibold uppercase ${finalizada ? "border-emerald-200 bg-emerald-50 text-emerald-800" : guardada ? "border-amber-200 bg-amber-50 text-amber-800" : "border-blue-100 bg-blue-50 text-slate-700"}`}>{cargando ? "Cargando" : finalizada ? "Finalizada" : guardada ? "En revisión" : "Sin evaluar"}</span><p className="mt-3 text-sm text-slate-600">Estudiante: <strong>{nombreEstudiante}</strong>{fecha && <> · Entrega actualizada el {fecha}</>}</p></div>
-          <div className="space-y-3"><div className="flex flex-wrap gap-2"><button type="button" onClick={() => perfilModal.current?.showModal()} className={`${boton} border-slate-300 bg-white`}>Ver perfil del candidato</button><button type="button" onClick={() => { setSeccion("entrevistas"); setRegistrarEntrevista(true); }} className={`${boton} border-slate-300 bg-white`}>Registrar entrevista</button></div>{navegacion.includes(submissionId) && <nav aria-label="Navegar entre entregas" className="inline-flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-2 text-xs">{navegacion.indexOf(submissionId) > 0 ? <Link aria-label="Entrega anterior" href={`/evaluator/submissions/${navegacion[navegacion.indexOf(submissionId) - 1]}`} className="rounded p-2 text-blue-700 focus-visible:outline-2 focus-visible:outline-blue-700">←</Link> : <span aria-disabled="true" className="p-2 text-slate-300">←</span>}<span>{navegacion.indexOf(submissionId) + 1} de {navegacion.length} cargadas</span>{navegacion.indexOf(submissionId) < navegacion.length - 1 ? <Link aria-label="Entrega siguiente" href={`/evaluator/submissions/${navegacion[navegacion.indexOf(submissionId) + 1]}`} className="rounded p-2 text-blue-700 focus-visible:outline-2 focus-visible:outline-blue-700">→</Link> : <span aria-disabled="true" className="p-2 text-slate-300">→</span>}</nav>}</div>
+          <div className="space-y-3"><div className="flex flex-wrap gap-2"><Link href={`/evaluator/candidates/${candidateId}`} className={`${boton} inline-flex items-center border-slate-300 bg-white`}>Ver perfil del candidato</Link><button type="button" onClick={() => { setSeccion("entrevistas"); setRegistrarEntrevista(true); }} className={`${boton} border-slate-300 bg-white`}>Registrar entrevista</button></div>{navegacion.includes(submissionId) && <nav aria-label="Navegar entre entregas" className="inline-flex items-center gap-3 rounded-lg border border-slate-200 bg-white p-2 text-xs">{navegacion.indexOf(submissionId) > 0 ? <Link aria-label="Entrega anterior" href={`/evaluator/submissions/${navegacion[navegacion.indexOf(submissionId) - 1]}`} className="rounded p-2 text-blue-700 focus-visible:outline-2 focus-visible:outline-blue-700">←</Link> : <span aria-disabled="true" className="p-2 text-slate-300">←</span>}<span>{navegacion.indexOf(submissionId) + 1} de {navegacion.length} cargadas</span>{navegacion.indexOf(submissionId) < navegacion.length - 1 ? <Link aria-label="Entrega siguiente" href={`/evaluator/submissions/${navegacion[navegacion.indexOf(submissionId) + 1]}`} className="rounded p-2 text-blue-700 focus-visible:outline-2 focus-visible:outline-blue-700">→</Link> : <span aria-disabled="true" className="p-2 text-slate-300">→</span>}</nav>}</div>
         </div>
         <nav aria-label="Secciones de la entrega" className="mt-6 flex gap-6 border-b border-slate-200 text-sm"><button type="button" aria-pressed={seccion === "evaluacion"} onClick={() => setSeccion("evaluacion")} className={`min-h-12 border-b-2 font-medium focus-visible:outline-2 focus-visible:outline-blue-700 ${seccion === "evaluacion" ? "border-blue-600 text-blue-700" : "border-transparent text-slate-600"}`}>Evaluación</button><button type="button" aria-pressed={seccion === "entrevistas"} onClick={() => setSeccion("entrevistas")} className={`min-h-12 border-b-2 font-medium focus-visible:outline-2 focus-visible:outline-blue-700 ${seccion === "entrevistas" ? "border-blue-600 text-blue-700" : "border-transparent text-slate-600"}`}>Entrevistas{totalEntrevistas !== null ? ` (${totalEntrevistas})` : ""}</button><button type="button" onClick={() => setSeccion("defensa")} aria-pressed={seccion === "defensa"} className={`min-h-12 border-b-2 font-medium focus-visible:outline-2 focus-visible:outline-blue-700 ${seccion === "defensa" ? "border-blue-600 text-blue-700" : "border-transparent text-slate-600"}`}>Defensa técnica</button></nav>
         <div hidden={seccion !== "defensa"} className="mt-8">{seccion === "defensa" && <DefenseReview submissionId={submissionId} challengeId={challengeId} interview={() => { setSeccion("entrevistas"); setRegistrarEntrevista(true); }}/>}</div>
@@ -758,16 +753,7 @@ export default function EvaluationPanel({
                 </span>
               </div>
               {cargando ? (
-                <div role="status" className="carga-animada mt-6 space-y-4">
-                  <span className="sr-only">Cargando rúbrica...</span>
-                  {[0, 1, 2].map((indice) => (
-                    <div
-                      key={indice}
-                      aria-hidden="true"
-                      className="h-40 rounded-lg bg-slate-200"
-                    />
-                  ))}
-                </div>
+                <LoadingState compact label="Cargando rúbrica…"/>
               ) : errorCarga ? (
                 <div
                   role="alert"
@@ -1031,7 +1017,7 @@ export default function EvaluationPanel({
           </div>
         </div></div>
       </main>
-      <dialog ref={perfilModal} aria-labelledby="perfil-candidato-entrega" className="fixed inset-0 m-auto w-[calc(100%_-_3rem)] max-w-md rounded-xl border border-slate-200 bg-white p-6 text-[#14263d] shadow-xl backdrop:bg-slate-900/40 backdrop:backdrop-blur-sm"><h2 id="perfil-candidato-entrega" className="text-xl font-semibold">Perfil del candidato</h2><p className="mt-4 font-medium">{nombreEstudiante}</p><p className="mt-2 text-sm text-slate-600">Desafío: {tituloDesafio}</p><p className="mt-4 text-sm leading-relaxed text-slate-600">Esta vista muestra los datos disponibles en la entrega. El historial completo del candidato todavía no está conectado.</p><button type="button" onClick={() => perfilModal.current?.close()} className={`${boton} mt-5 border-slate-300`}>Cerrar</button></dialog>
+      <dialog ref={perfilModal} aria-labelledby="perfil-candidato-entrega" className="fixed inset-0 m-auto w-[calc(100%_-_3rem)] max-w-md rounded-xl border border-slate-200 bg-white p-6 text-[#14263d] shadow-xl backdrop:bg-slate-900/40 backdrop:backdrop-blur-sm"><h2 id="perfil-candidato-entrega" className="text-xl font-semibold">Perfil del candidato</h2><p className="mt-4 font-medium">{nombreEstudiante}</p><p className="mt-2 text-sm text-slate-600">Desafío: {tituloDesafio}</p><p className="mt-4 text-sm leading-relaxed text-slate-600">Esta vista muestra los datos disponibles en la entrega. Consulta el perfil del candidato para ver los antecedentes accesibles según tus permisos.</p><button type="button" onClick={() => perfilModal.current?.close()} className={`${boton} mt-5 border-slate-300`}>Cerrar</button></dialog>
       <dialog
         ref={modal}
         aria-labelledby="confirmar-evaluacion"

@@ -1,3 +1,5 @@
+
+import { LoadingState } from "@/components/ui/loading-state";
 import { Suspense } from "react";
 import Link from "next/link";
 import { Inter } from "next/font/google";
@@ -9,11 +11,11 @@ import EvaluationPanel from "@/components/evaluator/evaluation-panel";
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
 
 export default function EvaluacionPage({ params }: { params: Promise<{ submissionId: string }> }) {
-  return <Suspense fallback={<main role="status" aria-busy="true" className="min-h-screen bg-[#f8f9ff] p-8"><span className="sr-only">Cargando evaluación...</span><div aria-hidden="true" className="carga-animada mx-auto max-w-[1200px] space-y-6"><div className="h-10 w-2/3 rounded bg-slate-200"/><div className="grid gap-6 lg:grid-cols-2">{[0, 1].map(indice => <div key={indice} className="h-96 rounded-xl bg-slate-100"/>)}</div></div></main>}><ContenidoEvaluacion params={params}/></Suspense>;
+  return <Suspense fallback={<LoadingState fullPage label="Cargando evaluación…"/>}><ContenidoEvaluacion params={params}/></Suspense>;
 }
 
 function AccesoDenegado({ mensaje }: { mensaje: string }) {
-  return <main className="min-h-screen bg-slate-50 p-8 text-slate-900"><h1 className="text-xl font-semibold">{mensaje}</h1><Link href="/evaluator/submissions" className="mt-4 inline-block text-blue-700 underline">Volver a Entregas por evaluar</Link></main>;
+  return <main className="min-h-screen bg-slate-50 p-8 text-slate-900"><h1 className="text-xl font-semibold">{mensaje}</h1><Link href="/evaluator/submissions" className="mt-4 inline-block text-blue-700 no-underline">Volver a Entregas por evaluar</Link></main>;
 }
 
 async function ContenidoEvaluacion({ params }: { params: Promise<{ submissionId: string }> }) {
@@ -39,5 +41,5 @@ async function ContenidoEvaluacion({ params }: { params: Promise<{ submissionId:
     supabase.from("challenges").select("title").eq("id", entrega.challenge_id).maybeSingle(),
     supabase.from("profiles").select("display_name").eq("id", entrega.user_id).maybeSingle(),
   ]);
-  return <div className={inter.className}><EvaluationPanel key={submissionId} submissionId={submissionId} challengeId={entrega.challenge_id} usuarioId={usuario} nombreEvaluador={perfil.display_name || "Evaluador"} nombreEstudiante={estudiante.data?.display_name || "Nombre no disponible"} tituloDesafio={desafio.data?.title || "Título no disponible"} soloLectura={Boolean(evaluacion && evaluacion.evaluator_id !== usuario)} evidencia={{ repositorio: entrega.github_repo_url, documentacion: entrega.documentation, justificacion: entrega.justification, problema: entrega.problem_description, actualizada: entrega.updated_at }}/></div>;
+  return <div className={inter.className}><EvaluationPanel key={submissionId} submissionId={submissionId} challengeId={entrega.challenge_id} candidateId={entrega.user_id} usuarioId={usuario} nombreEvaluador={perfil.display_name || "Evaluador"} nombreEstudiante={estudiante.data?.display_name || "Nombre no disponible"} tituloDesafio={desafio.data?.title || "Título no disponible"} soloLectura={Boolean(evaluacion && evaluacion.evaluator_id !== usuario)} evidencia={{ repositorio: entrega.github_repo_url, documentacion: entrega.documentation, justificacion: entrega.justification, problema: entrega.problem_description, actualizada: entrega.updated_at }}/></div>;
 }

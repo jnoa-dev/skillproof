@@ -1,3 +1,5 @@
+
+import { LoadingState } from "@/components/ui/loading-state";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Inter } from "next/font/google";
@@ -43,12 +45,14 @@ async function AuthenticatedInterviews({ children }: { children: React.ReactNode
   if (account.status === "error") {
     return <main className="mx-auto max-w-xl px-6 py-16"><section role="alert" className="rounded-xl border border-red-200 bg-white p-6"><h1 className="text-xl font-bold">No pudimos cargar tu cuenta</h1><p className="mt-3 text-sm text-slate-600">Reintenta para recuperar tu sesión y perfil antes de continuar.</p><a href="/interviews" className="mt-4 inline-flex min-h-12 items-center rounded-lg border border-blue-700 px-5 text-sm font-semibold text-blue-700">Reintentar</a></section></main>;
   }
+  if (account.profile.role === "evaluator" || account.profile.role === "admin") redirect("/evaluator/interviews");
+  if (account.profile.role !== "student") redirect("/dashboard");
   return <InterviewProfileProvider profile={account.profile}>{children}</InterviewProfileProvider>;
 }
 
 export default function InterviewsLayout({ children }: { children: React.ReactNode }) {
   return <div lang="es" className={`${inter.className} interviews min-h-screen bg-[#f8fafc] text-[#17212f]`}>
-    <Suspense fallback={<main aria-busy="true" className="mx-auto max-w-[1440px] space-y-6 px-6 py-8"><p role="status" className="text-sm text-slate-600">Cargando tu cuenta y entrevistas...</p><div aria-hidden="true" className="carga-animada space-y-6"><div className="h-16 rounded-xl bg-slate-200" /><div className="grid gap-6 lg:grid-cols-3">{[0, 1, 2].map(item => <div key={item} className="h-32 rounded-xl bg-slate-200" />)}</div><div className="h-96 rounded-xl bg-slate-200" /></div></main>}>
+    <Suspense fallback={<LoadingState fullPage label="Cargando entrevistas…"/>}>
       <AuthenticatedInterviews>{children}</AuthenticatedInterviews>
     </Suspense>
   </div>;

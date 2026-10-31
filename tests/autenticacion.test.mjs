@@ -16,7 +16,7 @@ function cargarArchivo(ruta, dependencias = {}, entorno = {}) {
   const modulo = { exports: {} };
   const nombres = Object.keys(entorno);
   new Function("require", "module", "exports", ...nombres, codigo)(
-    nombre => nombre in dependencias ? dependencias[nombre] : cargarPaquete(nombre),
+    nombre => nombre in dependencias ? dependencias[nombre] : nombre === "@/components/ui/loading-state" ? cargarArchivo("src/components/ui/loading-state.tsx") : cargarPaquete(nombre),
     modulo, modulo.exports, ...Object.values(entorno),
   );
   return modulo.exports;

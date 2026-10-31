@@ -129,11 +129,11 @@ export default async function DashboardPage() {
                   <div><p className={`text-base leading-6 ${actual ? "font-medium" : "text-[var(--dashboard-muted)]"}`}>{paso}</p>{actual && !evaluado && <p className="text-sm text-[var(--dashboard-primary)]">Estás aquí</p>}</div>
                 </li>;
               })}</ol>
-              {evaluado && <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-4"><h3 className="text-sm font-semibold">Pasaporte público</h3><p className="mt-2 text-xs leading-relaxed text-[var(--dashboard-muted)]">Si ya tienes un enlace o código de pasaporte publicado, puedes consultarlo aquí.</p><Link href="/passport" className="mt-3 inline-block rounded text-sm text-blue-700 underline focus-visible:outline-2 focus-visible:outline-blue-700">Consultar pasaporte público →</Link></div>}
+              {evaluado && <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50 p-4"><h3 className="text-sm font-semibold">Pasaporte público</h3><p className="mt-2 text-xs leading-relaxed text-[var(--dashboard-muted)]">Si ya tienes un enlace o código de pasaporte publicado, puedes consultarlo aquí.</p><Link href="/passport" className="mt-3 inline-block rounded text-sm text-blue-700 no-underline focus-visible:outline-2 focus-visible:outline-blue-700">Consultar pasaporte público →</Link></div>}
               <div className="my-6 border-t border-slate-200"/>
               <h3 className="mb-3 text-lg">Actualizaciones</h3>
               <p className="text-sm leading-5 text-[var(--dashboard-muted)]">{submission ? `${borrador ? "Borrador guardado" : "Entrega actualizada"}${fecha ? ` · ${fecha}` : " · Fecha no disponible"}` : "Todavía no hay actualizaciones de tu entrega."}</p>
-              {errorEvaluacion && <p role="status" className="mt-3 text-sm text-amber-800">No pudimos verificar el estado de tu evaluación. <Link href="/dashboard" className="underline">Reintentar</Link></p>}
+              {errorEvaluacion && <p role="status" className="mt-3 text-sm text-amber-800">No pudimos verificar el estado de tu evaluación. <Link href="/dashboard" className="no-underline">Reintentar</Link></p>}
               <p className="mt-4 flex items-start gap-1 text-sm leading-tight text-[var(--dashboard-muted)]"><span aria-hidden="true">ⓘ</span>El feedback aún no está disponible en este panel.</p>
             </section>
           </div>

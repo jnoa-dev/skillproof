@@ -59,6 +59,11 @@ test("La defensa rechaza visitantes sin llamar a funciones de datos", async () =
   assert.equal((await service.GET(new Request(`https://skillproof.test/api/defense?submissionId=${id}`))).status, 401);
   assert.deepEqual(service.calls, []);
 });
+test("El evaluador no realiza la defensa del estudiante aunque tenga una sesión anterior", async () => {
+  const service = api("src/app/api/defense/route.ts", { role: "evaluator" });
+  assert.equal((await service.POST(post({ submissionId: id, action: "start", payload: { accepted: true } }))).status, 403);
+  assert.deepEqual(service.calls, [["table", "profiles"]]);
+});
 test("La validación de respuestas y eventos rechaza solicitudes antes de acceder al servidor", async () => {
   for (const body of [
     { action: "start", payload: { accepted: false } },
@@ -77,7 +82,7 @@ test("No se propagan identidades proporcionadas por el cliente a la función de 
   const service = api("src/app/api/defense/route.ts");
   const response = await service.POST(post({ submissionId: id, candidate_id: "otro", action: "start", payload: { accepted: true } }));
   assert.equal(response.status, 200);
-  assert.deepEqual(service.calls, [["defense_action", { p_submission_id: id, p_action: "start", p_payload: { accepted: true } }]]);
+  assert.deepEqual(service.calls, [["table", "profiles"], ["defense_action", { p_submission_id: id, p_action: "start", p_payload: { accepted: true } }]]);
   assert.match(response.headers.get("cache-control"), /private, no-store/);
 });
 test("Una migración ausente tiene un error explícito sin filtrar detalles SQL", async () => {

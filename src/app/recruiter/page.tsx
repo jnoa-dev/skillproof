@@ -1,3 +1,5 @@
+
+import { LoadingState } from "@/components/ui/loading-state";
 import { Suspense } from "react";
 import Link from "next/link";
 import { connection } from "next/server";
@@ -5,7 +7,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { dashboardForRole } from "@/lib/auth/dashboard";
 
-export default function RecruiterPage() { return <Suspense fallback={<main role="status" className="carga-animada p-12">Cargando tu panel…</main>}><Panel/></Suspense>; }
+export default function RecruiterPage() { return <Suspense fallback={<LoadingState fullPage label="Cargando panel…"/>}><Panel/></Suspense>; }
 async function Panel() {
   await connection();
   const db = await createClient();

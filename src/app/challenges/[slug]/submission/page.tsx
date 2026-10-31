@@ -1,9 +1,12 @@
+
+import { LoadingState } from "@/components/ui/loading-state";
 import { Suspense } from "react";
 import Link from "next/link";
 import { Inter } from "next/font/google";
 import { connection } from "next/server";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { requireStudentPage } from "@/lib/auth/student";
 import SubmissionForm from "@/components/challenges/submission-form";
 
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
@@ -12,27 +15,7 @@ export default function SubmissionPage({ params }: { params: Promise<{ slug: str
   return <Suspense fallback={<EntregaCargando />}><ContenidoEntrega params={params}/></Suspense>;
 }
 
-function EntregaCargando() {
-  return (
-    <div aria-busy="true" className={`${inter.className} flex min-h-screen flex-col bg-[#f7f9fc] text-slate-600`}>
-      <span role="status" className="sr-only">Cargando entrega...</span>
-      <header className="border-b border-slate-200 bg-white"><div className="mx-auto flex h-16 max-w-[1120px] items-center justify-between px-6 sm:px-8"><span className="text-xl font-bold text-[#14263d]">SKILLPROOF</span><span aria-hidden="true" className="size-9 rounded-full bg-slate-200 carga-animada"/></div></header>
-      <main aria-hidden="true" className="mx-auto w-full max-w-[800px] flex-1 space-y-6 px-6 py-8 carga-animada">
-        <div className="h-3 w-2/3 rounded bg-slate-200"/>
-        <div className="flex items-center justify-between gap-4"><div className="h-9 w-3/4 rounded bg-slate-200"/><div className="h-5 w-20 rounded bg-slate-200"/></div>
-        <div className="flex gap-5"><div className="h-3 w-40 rounded bg-slate-200"/><div className="h-3 w-36 rounded bg-slate-200"/></div>
-        <section className="space-y-6 rounded-xl border border-slate-200 bg-white p-6 sm:p-8">
-          <div className="h-5 w-28 rounded bg-slate-300"/><div className="h-3 w-3/4 rounded bg-slate-100"/>
-          {[0, 1, 2, 3].map(indice => <div key={indice} className="space-y-2"><div className="h-3 w-2/5 rounded bg-slate-200"/><div className={`${indice < 2 ? "h-12" : "h-28"} rounded-lg bg-slate-100`}/></div>)}
-          <div className="flex items-center gap-3"><div className="size-5 rounded bg-slate-200"/><div className="h-3 w-3/4 rounded bg-slate-100"/></div>
-          <div className="h-12 rounded-lg bg-slate-100"/>
-          <div className="flex justify-end gap-3 border-t border-slate-100 pt-3"><div className="h-12 w-36 rounded-lg bg-slate-200"/><div className="h-12 w-36 rounded-lg bg-blue-100"/></div>
-        </section>
-      </main>
-      <footer className="mt-12 border-t border-slate-200 bg-white px-8 py-4 text-xs">© SKILLPROOF</footer>
-    </div>
-  );
-}
+function EntregaCargando() { return <LoadingState fullPage label="Cargando entrega…"/>; }
 
 async function ContenidoEntrega({ params }: { params: Promise<{ slug: string }> }) {
   await connection();
@@ -41,6 +24,7 @@ async function ContenidoEntrega({ params }: { params: Promise<{ slug: string }> 
   const { data: auth, error: errorAuth } = await supabase.auth.getClaims();
   const userId = auth?.claims?.sub;
   if (errorAuth || typeof userId !== "string") redirect("/login");
+  await requireStudentPage(supabase, userId);
 
   const rutaDesafio = `/challenges/${encodeURIComponent(slug)}`;
   const { data: challenge, error: errorDesafio } = await supabase.from("challenges")
@@ -60,7 +44,7 @@ async function ContenidoEntrega({ params }: { params: Promise<{ slug: string }> 
   const draft = submission?.status === "draft" ? submission : null;
   const nombre = resultadoPerfil.data?.display_name?.trim() || "Estudiante";
   const iniciales = nombre.split(/\s+/).slice(0, 2).map((parte: string) => parte[0]).join("").toUpperCase();
-  const enlace = "rounded-sm text-[#165dcc] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700";
+  const enlace = "rounded-sm text-[#165dcc] hover:no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700";
 
   return (
     <div className={`${inter.className} flex min-h-screen flex-col bg-[#f7f9fc] text-[#14263d]`}>

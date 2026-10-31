@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { studentActionError } from "@/lib/auth/student";
 
 function parseGithubRepo(value: string) {
   try {
@@ -120,6 +121,9 @@ export async function POST(request: NextRequest) {
       { status: 401 }
     );
   }
+
+  const roleError = await studentActionError(supabase, userId);
+  if (roleError) return roleError;
 
   const { data: challenge, error: challengeError } = await supabase
     .from("challenges")

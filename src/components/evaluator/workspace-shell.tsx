@@ -1,0 +1,17 @@
+import Link from "next/link";
+import { Inter } from "next/font/google";
+import { connection } from "next/server";
+import { redirect } from "next/navigation";
+import type { ReactNode } from "react";
+import { createClient } from "@/lib/supabase/server";
+import { AccesoEvaluador } from "./states";
+const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700"] });
+export default async function WorkspaceShell({ section, children, adminOnly = false }: { section: "challenges" | "candidates" | "interviews"; children: ReactNode; adminOnly?: boolean }) {
+  await connection(); const db = await createClient(); const auth = await db.auth.getUser();
+  if (!auth.data.user) redirect("/login");
+  const profile = await db.from("profiles").select("role, display_name").eq("id", auth.data.user.id).maybeSingle();
+  if (adminOnly && !profile.error && profile.data && profile.data.role !== "admin") return <main className="flex min-h-screen items-center justify-center bg-[#f8f9ff] p-6"><section className="max-w-xl rounded-xl border border-slate-200 bg-white p-10 text-center shadow-sm"><h1 className="text-2xl font-semibold">La gestión de desafíos requiere una cuenta administradora</h1><p className="mt-4 text-sm leading-6 text-slate-600">El acceso del reclutador y la propiedad de sus desafíos todavía están pendientes de definición.</p><Link href="/dashboard" className="mt-6 inline-block rounded-lg bg-blue-700 px-5 py-3 text-sm font-semibold text-white">Volver al dashboard</Link></section></main>;
+  if (profile.error || !profile.data || !["admin", "evaluator"].includes(profile.data.role)) return <AccesoEvaluador error={Boolean(profile.error)} rol={profile.data?.role}/>;
+  const p = profile.data;
+  return <div className={`${inter.className} flex min-h-screen flex-col bg-[#f8f9ff] text-[#14263d]`}><header className="border-b border-slate-200 bg-white"><div className="mx-auto flex min-h-20 max-w-[1440px] flex-wrap items-center gap-8 px-6"><Link href="/evaluator" className="text-2xl font-bold tracking-tight">SKILLPROOF</Link><nav aria-label="Navegación del equipo" className="flex flex-wrap gap-3 text-sm font-medium"><Link className="rounded-lg px-3 py-2 hover:bg-blue-50" href="/evaluator">Inicio</Link>{p.role === "admin" && <Link aria-current={section === "challenges" ? "page" : undefined} className={`rounded-lg px-3 py-2 ${section === "challenges" ? "bg-blue-50 text-blue-800" : "hover:bg-blue-50"}`} href="/evaluator/challenges">Desafíos</Link>}<Link aria-current={section === "candidates" ? "page" : undefined} className={`rounded-lg px-3 py-2 ${section === "candidates" ? "bg-blue-50 text-blue-800" : "hover:bg-blue-50"}`} href="/evaluator/candidates">Candidatos</Link><Link className="rounded-lg px-3 py-2 hover:bg-blue-50" href="/evaluator/submissions">Entregas por evaluar</Link><Link aria-current={section === "interviews" ? "page" : undefined} className={`rounded-lg px-3 py-2 ${section === "interviews" ? "bg-blue-50 text-blue-800" : "hover:bg-blue-50"}`} href="/evaluator/interviews">Entrevistas</Link></nav><Link href="/account" className="ml-auto py-3 text-right text-sm"><span className="block font-semibold">{p.display_name || "Mi cuenta"}</span><span className="text-xs text-slate-600">{p.role === "admin" ? "Administrador" : "Evaluador"}</span></Link></div></header><main className="mx-auto w-full max-w-[1440px] flex-1 px-6 py-8 pb-36">{children}</main><footer className="border-t border-slate-200 bg-white px-6 py-6 text-xs text-slate-600">© SKILLPROOF</footer></div>;
+}

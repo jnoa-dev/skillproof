@@ -9,7 +9,7 @@ const require = createRequire(import.meta.url);
 function cargar(ruta, dependencias = {}, entorno = {}) {
   const modulo = { exports: {} };
   const codigo = ts.transpileModule(readFileSync(new URL(`../${ruta}`, import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2020 }, fileName: ruta }).outputText;
-  new Function("require", "module", "exports", ...Object.keys(entorno), codigo)(nombre => nombre in dependencias ? dependencias[nombre] : require(nombre), modulo, modulo.exports, ...Object.values(entorno));
+  new Function("require", "module", "exports", ...Object.keys(entorno), codigo)(nombre => nombre in dependencias ? dependencias[nombre] : nombre === "@/components/ui/loading-state" ? cargar("src/components/ui/loading-state.tsx") : require(nombre), modulo, modulo.exports, ...Object.values(entorno));
   return modulo.exports;
 }
 const { filtrarEntregas, evaluacionEnCurso } = cargar("src/lib/evaluator/dashboard.ts");
