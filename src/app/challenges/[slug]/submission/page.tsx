@@ -29,7 +29,7 @@ function EntregaCargando() {
           <div className="flex justify-end gap-3 border-t border-slate-100 pt-3"><div className="h-12 w-36 rounded-lg bg-slate-200"/><div className="h-12 w-36 rounded-lg bg-blue-100"/></div>
         </section>
       </main>
-      <footer className="mt-12 border-t border-slate-200 bg-white px-8 py-4 text-xs">© {new Date().getFullYear()} SKILLPROOF</footer>
+      <footer className="mt-12 border-t border-slate-200 bg-white px-8 py-4 text-xs">© SKILLPROOF</footer>
     </div>
   );
 }
@@ -80,7 +80,7 @@ async function ContenidoEntrega({ params }: { params: Promise<{ slug: string }> 
           {enviado ? <><section role="status" className="rounded-xl border border-green-200 bg-green-50 p-6 text-sm text-green-800"><h2 className="font-semibold">Entrega recibida</h2><p className="mt-1">Tu solución se envió correctamente. Estado: Enviado.</p><Link href="/dashboard" className={`${enlace} mt-3 inline-block`}>Ver estado de mi entrega →</Link></section><section className="space-y-5 rounded-xl border border-slate-200 bg-white p-6 sm:p-8"><div className="flex items-center justify-between gap-3"><h2 className="text-xl font-bold">Tu entrega</h2><span className="rounded bg-slate-100 px-2 py-1 text-xs text-slate-500">Bloqueado</span></div><p className="text-sm text-slate-500">Los datos técnicos registrados están bloqueados para edición.</p><dl className="space-y-5 break-words text-sm">{[["URL del repositorio GitHub", submission.github_repo_url], ["Documentación técnica", submission.documentation], ["Justificación técnica", submission.justification], ["¿Qué problema encontraste y cómo lo investigaste?", submission.problem_description]].map(([etiqueta, valor]) => <div key={etiqueta}><dt className="font-semibold">{etiqueta}</dt><dd className="mt-2"><textarea aria-label={etiqueta || "Dato de entrega"} readOnly rows={etiqueta === "URL del repositorio GitHub" ? 2 : 4} value={valor || "No disponible"} className="w-full resize-none rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm leading-relaxed text-slate-600 focus-visible:outline-2 focus-visible:outline-blue-700"/></dd></div>)}</dl></section></> : <SubmissionForm key={challenge.id} challengeId={challenge.id} draft={draft} variante="pagina"/>}
         </>}
       </main>
-      <footer className="mt-12 border-t border-slate-200 bg-white py-4 text-sm text-slate-600"><div className="mx-auto flex max-w-[1200px] flex-wrap justify-between gap-3 px-8"><span>© {new Date().getFullYear()} SKILLPROOF</span><div className="flex gap-1"><button type="button" disabled title="Términos aún no está disponible">Términos</button><span aria-hidden="true">·</span><button type="button" disabled title="Soporte aún no está disponible">Soporte</button></div></div></footer>
+      <footer className="mt-12 border-t border-slate-200 bg-white py-4 text-sm text-slate-600"><div className="mx-auto flex max-w-[1200px] flex-wrap justify-between gap-3 px-8"><span>© SKILLPROOF</span><div className="flex gap-1"><button type="button" disabled title="Términos aún no está disponible">Términos</button><span aria-hidden="true">·</span><button type="button" disabled title="Soporte aún no está disponible">Soporte</button></div></div></footer>
     </div>
   );
 }

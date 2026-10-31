@@ -163,7 +163,7 @@ async function ChallengeContent({
           </aside>
         </div>
       </main>
-      <footer className="mt-auto border-t border-slate-200 bg-white"><div className="mx-auto flex min-h-14 max-w-[1200px] flex-wrap items-center justify-between gap-3 px-6 py-3 text-sm text-[var(--dashboard-muted)] sm:px-8"><span>© {new Date().getFullYear()} SKILLPROOF</span><div className="flex gap-4"><button type="button" disabled title="Términos aún no está disponible" className="cursor-not-allowed">Términos</button><span aria-hidden="true">·</span><button type="button" disabled title="Soporte aún no está disponible" className="cursor-not-allowed">Soporte</button></div></div></footer>
+      <footer className="mt-auto border-t border-slate-200 bg-white"><div className="mx-auto flex min-h-14 max-w-[1200px] flex-wrap items-center justify-between gap-3 px-6 py-3 text-sm text-[var(--dashboard-muted)] sm:px-8"><span>© {2026} SKILLPROOF</span><div className="flex gap-4"><button type="button" disabled title="Términos aún no está disponible" className="cursor-not-allowed">Términos</button><span aria-hidden="true">·</span><button type="button" disabled title="Soporte aún no está disponible" className="cursor-not-allowed">Soporte</button></div></div></footer>
     </div>
   );
 }
