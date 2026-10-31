@@ -19,9 +19,22 @@ export async function GET(request: NextRequest) {
 
     if (error || !data.session) return respuestaError();
 
-    const destino = request.nextUrl.searchParams.get("flujo") === "recuperacion"
-      ? "/login?estado=restablecer"
-      : "/dashboard";
+    let destino: string;
+
+    if (request.nextUrl.searchParams.get("flujo") === "recuperacion") {
+      destino = "/login?estado=restablecer";
+    } else {
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", data.user.id)
+        .maybeSingle();
+
+      if (profileError || !profile) return respuestaError();
+
+      destino = profile.role === "recruiter" ? "/recruiter" : "/dashboard";
+    }
+
     const respuesta = NextResponse.redirect(new URL(destino, request.url));
     respuesta.headers.set("Cache-Control", "private, no-store");
     respuesta.headers.set("Referrer-Policy", "no-referrer");
