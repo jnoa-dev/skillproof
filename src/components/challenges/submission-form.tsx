@@ -18,7 +18,7 @@ type Props = {
 
 export default function SubmissionForm({ challengeId, draft }: Props) {
   const router = useRouter();
-  const [submissionId, setSubmissionId] = useState(draft?.id ?? null);
+  //const [submissionId, setSubmissionId] = useState(draft?.id ?? null);
   const [repoUrl, setRepoUrl] = useState(draft?.github_repo_url ?? "");
   const [documentation, setDocumentation] = useState(draft?.documentation ?? "");
   const [justification, setJustification] = useState(draft?.justification ?? "");
@@ -75,9 +75,9 @@ export default function SubmissionForm({ challengeId, draft }: Props) {
         return;
       }
 
-      if (result.id) {
+      /*if (result.id) {
         setSubmissionId(result.id);
-      }
+      }*/
 
       if (action === "submit") {
         setMessage("Entrega enviada correctamente.");
