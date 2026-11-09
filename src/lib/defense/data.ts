@@ -33,9 +33,16 @@ export async function loadDefense(slug: string, evaluator = false): Promise<Defe
     if (result.error) throw new DefenseAccessError("No pudimos verificar tu entrega. Reintenta antes de continuar.");
     submission = result.data;
   }
-  return { slug, name: profile.display_name || "Mi cuenta", role: profile.role,
-    title: challenge.data.title, description: challenge.data.description,
-    questions: questionsFrom(challenge.data.requirements ?? []), submission };
+  return {
+      challengeId: challenge.data.id,
+      slug,
+      name: profile.display_name || "Mi cuenta",
+      role: profile.role,
+      title: challenge.data.title,
+      description: challenge.data.description,
+      questions: questionsFrom(challenge.data.requirements ?? []),
+      submission,
+    };
 }
 export async function loadDefenseReview(submissionId: string): Promise<DefenseData> {
   const { db, userId, profile } = await account(true);
@@ -54,7 +61,14 @@ export async function loadDefenseReview(submissionId: string): Promise<DefenseDa
     .eq("id", result.data.challenge_id).maybeSingle();
   if (challenge.error) throw new DefenseAccessError("No pudimos cargar el desafío.");
   if (!challenge.data) notFound();
-  return { slug: challenge.data.slug, name: profile.display_name || "Mi cuenta", role: profile.role,
-    title: challenge.data.title, description: challenge.data.description,
-    questions: questionsFrom(challenge.data.requirements ?? []), submission: result.data };
+  return {
+        challengeId: result.data.challenge_id,
+        slug: challenge.data.slug,
+        name: profile.display_name || "Mi cuenta",
+        role: profile.role,
+        title: challenge.data.title,
+        description: challenge.data.description,
+        questions: questionsFrom(challenge.data.requirements ?? []),
+        submission: result.data,
+      };
 }
