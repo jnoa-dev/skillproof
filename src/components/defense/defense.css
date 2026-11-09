@@ -1,0 +1,5 @@
+.defense-ui { color: #17212f; background: #f7f9fc; font-variant-numeric: tabular-nums; }
+.defense-ui :is(a,button,input,textarea,select):focus-visible { outline: 2px solid #165dcc; outline-offset: 3px; box-shadow: 0 0 0 5px #087f8c33; }
+.defense-ui button:disabled { cursor: not-allowed; }
+.defense-ui dialog::backdrop { background: rgb(20 38 61 / 55%); }
+.defense-ui textarea { resize: vertical; }
