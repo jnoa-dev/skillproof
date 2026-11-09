@@ -44,7 +44,7 @@ function FormularioAcceso() {
   const router = useRouter();
   const parametros = useSearchParams();
   const supabase = createClient();
-
+  const [tipoCuenta, setTipoCuenta] = useState<"student" | "recruiter">("student");
   const [mode, setMode] = useState<"login" | "signup" | "recuperar" | "restablecer">(
     parametros.get("estado") === "restablecer" ? "restablecer" : parametros.get("mode") === "register" ? "signup" : "login"
   );
@@ -136,30 +136,51 @@ function FormularioAcceso() {
           email: email.trim(),
           password,
           options: {
-            data: { display_name: name.trim() },
+            data: {
+              display_name: name.trim(),
+              account_type: tipoCuenta,
+            },
             emailRedirectTo: retorno.href,
           },
         });
         if (error) throw error;
-        if (data.session) {
-          router.push("/dashboard");
-          router.refresh();
+        if (data.session && data.user) {
+          await irAlDashboard(data.user.id);
         } else {
           setConfirmacion("registro");
         }
         return;
       }
 
-      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
       if (error) throw error;
-      router.push("/dashboard");
-      router.refresh();
+      if (!data.user) throw new Error("No pudimos validar tu cuenta.");
+
+      await irAlDashboard(data.user.id);
     } catch (error) {
       mostrarError(error);
     } finally {
       setLoading(false);
       enviando.current = false;
     }
+  }
+
+  async function irAlDashboard(userId: string) {
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (error || !profile) {
+      throw new Error("No pudimos cargar el perfil de tu cuenta.");
+    }
+
+    router.replace(profile.role === "recruiter" ? "/recruiter" : "/dashboard");
+    router.refresh();
   }
 
   async function iniciarOAuth(proveedor: "google" | "github") {
@@ -320,24 +341,43 @@ function FormularioAcceso() {
               className="mt-[18px]"
             >
               {mode === "signup" && (
-                <label className="mb-3 block text-[11px] leading-4">
-                  Nombre completo
-                  <input
-                    name="nombre"
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
-                    required
-                    maxLength={80}
-                    disabled={loading}
-                    autoComplete="name"
-                    aria-invalid={erroresCampos.nombre}
-                    aria-describedby={erroresCampos.nombre ? "error-nombre" : undefined}
-                    className="mt-0.5 h-11 w-full rounded-lg border border-gray-200 bg-white shadow-md shadow-black/10 enabled:hover:border-gray-300 focus-visible:shadow-lg transition-shadow duration-150 motion-reduce:transition-none px-3 text-[13px] outline-none focus-visible:border-blue-700 focus-visible:ring-2 focus-visible:ring-blue-100 aria-invalid:border-red-400 aria-invalid:focus-visible:border-red-400 aria-invalid:focus-visible:ring-red-100 disabled:opacity-60"
-                  />
-                  {erroresCampos.nombre && (
-                    <span id="error-nombre" className="mt-1 flex items-center gap-1 text-[11px] leading-4 text-red-600"><span aria-hidden="true">ⓘ</span> Ingresa tu nombre.</span>
-                  )}
-                </label>
+                <>
+                  <label className="mb-3 block text-[11px] leading-4">
+                    Nombre completo
+                    <input
+                      name="nombre"
+                      value={name}
+                      onChange={(event) => setName(event.target.value)}
+                      required
+                      maxLength={80}
+                      disabled={loading}
+                      autoComplete="name"
+                      aria-invalid={erroresCampos.nombre}
+                      aria-describedby={erroresCampos.nombre ? "error-nombre" : undefined}
+                      className="mt-0.5 h-11 w-full rounded-lg border border-gray-200 bg-white px-3 text-[13px]"
+                    />
+                    {erroresCampos.nombre && (
+                      <span id="error-nombre" className="mt-1 block text-red-600">
+                        Ingresa tu nombre.
+                      </span>
+                    )}
+                  </label>
+
+                  <label className="mb-3 block text-[11px] leading-4">
+                    Tipo de cuenta
+                    <select
+                      value={tipoCuenta}
+                      onChange={(event) =>
+                        setTipoCuenta(event.target.value as "student" | "recruiter")
+                      }
+                      disabled={loading}
+                      className="mt-0.5 h-11 w-full rounded-lg border border-gray-200 bg-white px-3 text-[13px]"
+                    >
+                      <option value="student">Estudiante</option>
+                      <option value="recruiter">Reclutador</option>
+                    </select>
+                  </label>
+                </>
               )}
 
               {mode !== "restablecer" && (
